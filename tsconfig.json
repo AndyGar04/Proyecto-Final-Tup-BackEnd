@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    // Estructura de archivos
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    // Entorno
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ESNext",
+    "lib": ["ESNext"],
+    "types": ["node"],
+
+    // Salidas
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    // Opciones de chequeo estricto
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+
+    // Para evitar que meta archivos de node_modules
+    "skipLibCheck": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}
