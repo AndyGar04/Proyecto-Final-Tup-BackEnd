@@ -10,11 +10,12 @@ class HorarioController {
 
     public async addHorario(req: Request, res: Response){
         try{
-            const id = req.params.id;
+            const { id, descripcionTurno, horario } = req.body;
             if(!id){
                 res.status(402).json({message:"Id no parametrizado"});
-            }else{
-                const { descripcionTurno, horario } = req.body;
+            }else if (!descripcionTurno || !horario){
+                res.status(402).json({message:"Descripcion u horario no parametrizado"});
+            }else {
                 const horarioCreado = new Horario(id, descripcionTurno, horario);
                 const nuevoHorario = await horarioService.addHorario(horarioCreado);
                 res.status(202).json(nuevoHorario);

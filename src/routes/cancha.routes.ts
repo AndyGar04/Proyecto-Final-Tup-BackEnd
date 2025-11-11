@@ -1,13 +1,13 @@
 import {Router} from 'express';
-import CanchaController from './../../src/controllers/cancha.controller'
+import canchaController from '../controllers/cancha.controller';
 
 const canchaRouter = Router();
 
-canchaRouter.get("/", CanchaController.getCanchas);
-canchaRouter.get("/:id", CanchaController.getCancha);
-canchaRouter.post("/", CanchaController.addCancha);
-canchaRouter.delete("/:id", CanchaController.deleteCancha);
-canchaRouter.put("/:id", CanchaController.editCancha);
+canchaRouter.get("/", canchaController.getCanchas);
+canchaRouter.get("/:id", canchaController.getCancha);
+canchaRouter.post("/", canchaController.addCancha);
+canchaRouter.delete("/:id", canchaController.deleteCancha);
+canchaRouter.put("/:id", canchaController.editCancha);
 
 
 export default canchaRouter
