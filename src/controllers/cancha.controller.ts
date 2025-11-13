@@ -28,15 +28,18 @@ class CanchaController {
 
     public async addCancha(req: Request, res: Response){
         try{
-            const id = req.params.id;
+            const { id, nombreCancha, deporte, tamanio, turno } = req.body;
             if(!id){
                 res.status(402).json({message:"Id no parametrizado"});
             }else{
-                const { nombreCancha, deporte, tamanio, turno } = req.body;
-                const canchaCreada = new Cancha(id, nombreCancha, deporte, tamanio, turno);
-                const nuevaCancha = await canchaService.addCancha(canchaCreada);
-                res.status(202).json(nuevaCancha);
-            }    
+                if (nombreCancha === undefined || deporte === undefined || tamanio  === undefined || turno  === undefined){ 
+                        res.status(402).json({message:"nombre, deporte, tamanio o turno no parametrizado"});
+                } else {
+                    const canchaCreada = new Cancha(id, nombreCancha, deporte, tamanio, turno);
+                    const nuevaCancha = await canchaService.addCancha(canchaCreada);
+                    res.status(202).json(nuevaCancha);
+            }
+        }    
         }catch(error){
             res.status(500).json({ message: "Error al agregar cancha", error});
         }    

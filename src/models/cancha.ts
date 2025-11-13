@@ -2,11 +2,11 @@ import { Turno } from "./turno";
 
 export class Cancha{
     constructor(
+        protected id: string,
         protected nombreCancha: string,
         protected deporte: string,
         protected tamanio: string, //6vs6-11vs11-etc
-        protected turno: Turno,
-        protected id: string
+        protected turno: Turno
     ){}
 
     //Get y set nombreCancha
