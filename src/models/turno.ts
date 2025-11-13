@@ -2,18 +2,18 @@ import { Horario } from "./horario";
 
 export class Turno{
     constructor(
-        protected disponibilidad: boolean,
-        protected costo: number,
         protected id: string,
+        protected descripcionTurno: string,
+        protected costo: number,
         protected horarios: Horario[] = []
     ){}
 
-    //Get y set disponibilidad
-    public getDisponibilidad(): boolean{
-        return this.disponibilidad
+    //Get y set descripcion turno
+    public getDescripcionTurno(): string{
+        return this.descripcionTurno
     }
-    public setDisponibilidad(disponibilidad: boolean): void{
-        this.disponibilidad = disponibilidad
+    public setDescripcionTurno(descripcionTurno: string): void{
+        this.descripcionTurno = descripcionTurno
     }
 
     //Get y set costo
@@ -39,7 +39,11 @@ export class Turno{
     public anadirHorario(nuevoHorario: Horario): void {
         this.horarios.push(nuevoHorario);
     }
-    public setHorarios(listaHorarios: Horario[]): void{
+    
+    public setHorarios(listaHorarios: Horario[]): void {
+        if (!Array.isArray(listaHorarios)) {
+            throw new Error("listaHorarios debe ser un arreglo válido de Horario");
+        }
         this.horarios.push(...listaHorarios);
     }
 }

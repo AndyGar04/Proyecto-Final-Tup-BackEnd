@@ -53,7 +53,7 @@ export class MockTurno implements TurnoCrud{
         });
     }
 
-    editTurno(id:string, disponibilidad:boolean, costo: number, horarios: Horario[]): Promise<Turno> {
+    editTurno(id:string, descripcionTurno: string, costo: number): Promise<Turno> {
         return new Promise<Turno>((resolve, rejects)=>{
             const turnoEncontrado = this.container.find(
                 (turno:Turno)=> turno.getId()==id
@@ -61,26 +61,47 @@ export class MockTurno implements TurnoCrud{
             if (!turnoEncontrado){
                 rejects(new Error("Este turno no fue encontrada"));
             }else{
-                turnoEncontrado.setDisponibilidad(disponibilidad);
+                turnoEncontrado.setDescripcionTurno(descripcionTurno);
                 turnoEncontrado.setCosto(costo);
-                turnoEncontrado.setHorarios(horarios);
                 resolve(turnoEncontrado);
             }
         });
     }
 
-    confirmarTurno(id: string, disponibilidad: boolean): Promise<Turno> {
+    addHorarioATurno(id: string, nuevoHorario: Horario): Promise<Turno> {
         return new Promise<Turno>((resolve, rejects)=>{
             const turnoEncontrado = this.container.find(
-                (turno:Turno)=> turno.getId()==id
+                (turno: Turno) => turno.getId() == id
             );
             if (!turnoEncontrado){
-                rejects(new Error("Este turno no fue encontrado"));
-            }else{
-                turnoEncontrado.setDisponibilidad(disponibilidad);
+                rejects(new Error("Este turno no fue encontrado"))
+            } else {
+                turnoEncontrado.anadirHorario(nuevoHorario);
                 resolve(turnoEncontrado);
             }
-        });
+        })
+    }
+
+    deleteHorarioATurno(turnoId: string, horarioId:string): Promise<Turno>{
+        return new Promise<Turno>((resolve, rejects) => {
+            const turnoEncontrado = this.container.find(
+                (turno:Turno) => turno.getId() == turnoId
+            );
+
+            if(!turnoEncontrado){
+                return rejects(new Error("El turno no fue encontrado"));
+            };
+
+            const horarios = turnoEncontrado.getHorarios();
+            const index = horarios.findIndex((h: Horario) => h.getId() === horarioId);
+
+            if (index == -1){
+                return rejects(new Error("El horario no existente en este turno"));
+            }
+
+            horarios.splice(index, 1);
+            resolve(turnoEncontrado)
+        })
     }
 
     size(): number {

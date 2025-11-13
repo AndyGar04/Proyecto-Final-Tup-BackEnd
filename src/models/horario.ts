@@ -1,8 +1,8 @@
 export class Horario{
     constructor (
-        protected descripcionTurno: string,
-        protected horario: string,
-        protected id: string
+        protected id: string,
+        protected disponibilidad: boolean,
+        protected horario: string
     ){}
 
     //Getter y Setter de ID
@@ -13,12 +13,12 @@ export class Horario{
         this.id = id
     }
 
-    // Getter y Setter de descripcionTurno
-    public getDescTurno(): string {
-        return this.descripcionTurno;
+    // Getter y Setter de disponibilidad
+    public getDisponibilidad(): boolean {
+        return this.disponibilidad;
     }
-    public setDescTurno(descripcionTurno: string): void {
-        this.descripcionTurno = descripcionTurno;
+    public setDisponibilidad(disponibilidad: boolean): void {
+        this.disponibilidad = disponibilidad;
     }
     
     // Getter y Setter de horario

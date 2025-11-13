@@ -5,6 +5,6 @@ export interface HorarioCrud {
     addHorario(horario:Horario):Promise<Horario>;
     addHorarios(horarios: Horario[]):Promise<void>;
     deleteHorario(id:string):void;
-    editHorario(id:string, descripcionTurno:string, horario: string):Promise<Horario>;
+    editHorario(id:string, disponibilidad: boolean, horario: string):Promise<Horario>;
     size():number;
 }

@@ -16,11 +16,14 @@ class TurnoService implements TurnoCrud{
     deleteTurno(id: string): void {
         TurnoModel.deleteTurno(id);
     }
-    editTurno(id: string, disponibilidad: boolean, costo: number, horario: Horario[]): Promise<Turno> {
-        return TurnoModel.editTurno(id, disponibilidad, costo, horario);
+    editTurno(id: string, descripcionTurno: string, costo: number): Promise<Turno> {
+        return TurnoModel.editTurno(id, descripcionTurno, costo);
     }
-    confirmarTurno(id: string, disponibilidad: boolean): Promise<Turno> {
-        return TurnoModel.confirmarTurno(id, disponibilidad);
+    addHorarioATurno(id: string, nuevoHorario: Horario): Promise<Turno> {
+        return TurnoModel.addHorarioATurno(id, nuevoHorario);
+    }
+    deleteHorarioATurno(turnoId: string, horarioId: string): Promise<Turno> {
+        return TurnoModel.deleteHorarioATurno(turnoId, horarioId);
     }
     size(): number {
         return TurnoModel.size();
