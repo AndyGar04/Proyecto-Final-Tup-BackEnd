@@ -3,6 +3,7 @@ import cors from 'cors';
 import horarioRoute from './routes/horario.routes';
 import turnoRoute from './routes/turno.routes';
 import canchaRouter from './routes/cancha.routes';
+import clubRoute from './routes/club.routes';
 
 class Server {
     public app: express.Application;
@@ -25,7 +26,8 @@ class Server {
     routes(){
         this.app.use("/horario", horarioRoute);
         this.app.use("/turno", turnoRoute);
-        this.app.use("/cancha", canchaRouter)
+        this.app.use("/cancha", canchaRouter);
+        this.app.use("/club", clubRoute);
     }
 
     start(callback: () => void) {

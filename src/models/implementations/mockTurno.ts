@@ -79,7 +79,7 @@ export class MockTurno implements TurnoCrud{
                 turnoEncontrado.anadirHorario(nuevoHorario);
                 resolve(turnoEncontrado);
             }
-        })
+        });
     }
 
     deleteHorarioATurno(turnoId: string, horarioId:string): Promise<Turno>{
@@ -101,7 +101,7 @@ export class MockTurno implements TurnoCrud{
 
             horarios.splice(index, 1);
             resolve(turnoEncontrado)
-        })
+        });
     }
 
     size(): number {

@@ -22,11 +22,11 @@ class TurnoController {
                     if (error instanceof Error){
                         res.status(404).json({
                             message: error.message
-                        })
-                    }
+                    });
                 }
             }
         }
+    }
 
     public async addTurno(req: Request, res: Response){
         try{

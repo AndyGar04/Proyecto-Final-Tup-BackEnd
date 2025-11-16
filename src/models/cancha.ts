@@ -48,4 +48,6 @@ export class Cancha{
     public setId(id: string){
         this.id = id
     }
+
+    
 }
