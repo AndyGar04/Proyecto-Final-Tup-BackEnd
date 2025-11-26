@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "test": "npx jest --watch",
+        "test": "vitest",
         "build": "npx tsc --watch",
         "dev:js": "node --watch ./dist/index.js",
         "dev:ts": "ts-node-dev --respawn src/index.ts"

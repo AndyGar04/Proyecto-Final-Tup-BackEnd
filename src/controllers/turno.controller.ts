@@ -87,22 +87,22 @@ class TurnoController {
     public async addHorario(req: Request, res: Response){
         const idTurno = req.params.idTurno; // ID del Turno a agregar horario
         const idHorario = req.params.idHorario; //ID del Horario a agregar horario
-        const { disponibilidad, horario } = req.body;
+        const { disponibilidad, horario, diaHorario } = req.body;
         
         if(!idTurno || !idHorario){
             return res.status(402).json({message: "Id del Turno/Horario no definido"});
         }
         
-        if(disponibilidad === undefined || horario === undefined){
+        if(disponibilidad === undefined || horario === undefined || diaHorario === undefined){
             return res.status(402).json({message: "Datos del Horario incompletos"});
         }
 
-        if (disponibilidad === "" || horario === "") {
+        if (disponibilidad === "" || horario === "" || diaHorario === ""){
             return res.status(402).json({message: "Los campos no pueden estar vacíos"});
         }
         
         try{
-            const nuevoHorario = new Horario(idHorario, disponibilidad, horario);
+            const nuevoHorario = new Horario(idHorario, disponibilidad, horario, diaHorario);
             const turnoModificado = await turnoService.addHorarioATurno(idTurno, nuevoHorario);
             res.status(200).json(turnoModificado);
         }catch(error){
