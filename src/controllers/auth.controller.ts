@@ -45,6 +45,34 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 };
 
+export const register = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const {nombre, email, password} = req.body;
+
+        if(!nombre || !email || !password) {
+            res.status(400).json({
+                ok: false,
+                message: 'Se requiere nombre, mail y contraseña'
+            })
+        }
+
+        const result = await authService.register(nombre, email, password);
+        
+        res.status(201).json({
+            ok: true,
+            message: 'Registro exitoso',
+            token: result?.token,
+            usuario: result?.usuario
+        });
+    } catch (error: any) {
+        console.error('Error en registro:', error);
+        res.status(500).json({
+            ok: false,
+            message: error.message || 'Error interno del servidor'
+        });
+    }
+}
+
 export const verificarToken = (req: Request, res: Response): void => {
     try {
         const token = req.headers.authorization?.replace('Bearer ', '');
@@ -74,6 +102,24 @@ export const verificarToken = (req: Request, res: Response): void => {
         });
     } catch (error) {
         console.error('Error al verificar token:', error);
+        res.status(500).json({
+            ok: false,
+            message: 'Error interno del servidor'
+        });
+    }
+};
+
+export const getAllUsuarios = (req: Request, res: Response): void => {
+    try {
+        const usuarios = usuarioRepository.getAll();
+
+        res.status(200).json({
+            ok: true,
+            message: 'Usuarios obtenidos exitosamente',
+            usuarios
+        });
+    } catch (error) {
+        console.error('Error al obtener usuarios:', error);
         res.status(500).json({
             ok: false,
             message: 'Error interno del servidor'
