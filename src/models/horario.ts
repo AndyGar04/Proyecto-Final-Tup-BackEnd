@@ -2,7 +2,8 @@ export class Horario{
     constructor (
         protected id: string,
         protected disponibilidad: boolean,
-        protected horario: string
+        protected horario: string,
+        protected diaHorario: Date
     ){}
 
     //Getter y Setter de ID
@@ -27,5 +28,13 @@ export class Horario{
     }
     public setHorario(horario: string): void {
         this.horario = horario;
+    }
+
+    // Getter y Setter de diaHorario
+    public getDiaHorario(): Date {
+        return this.diaHorario;
+    }   
+    public setDiaHorario(diaHorario: Date): void {
+        this.diaHorario = diaHorario;
     }
 }
