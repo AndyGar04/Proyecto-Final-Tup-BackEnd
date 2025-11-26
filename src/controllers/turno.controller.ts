@@ -33,13 +33,23 @@ class TurnoController {
             const { id, descripcionTurno, costo} = req.body;
             if(!id){
                 res.status(402).json({message:"Id no parametrizado"});
-            }else if(!descripcionTurno || !costo){
+            }
+            if(!descripcionTurno || !costo){
                 res.status(402).json({message:"Descripcion turno, costo u horario no parametrizado"});
-            }else{
-                const turnoCreado = new Turno(id, descripcionTurno, costo);
-                const nuevoTurno = await turnoService.addTurno(turnoCreado);
-                res.status(202).json(nuevoTurno);
-            }    
+            }
+
+            try {
+                await turnoService.getTurno(id); 
+                return res.status(409).json({ message: `Ya existe un turno con el ID ${id}.` });
+            } catch (error) {
+                // Si getTurno falla con 404, significa que el ID es nuevo, y podemos continuar.
+                // Si getTurno devuelve un error distinto (por ejemplo, 500), se manejará en el catch exterior.
+            }
+            
+            // Si las validaciones pasan, creamos el nuevo turno
+            const turnoCreado = new Turno(id, descripcionTurno, costo);
+            const nuevoTurno = await turnoService.addTurno(turnoCreado);
+            res.status(202).json(nuevoTurno);
         }catch(error){
             res.status(500).json({ message: "Error al agregar turno", error});
         }    
@@ -93,23 +103,26 @@ class TurnoController {
             return res.status(402).json({message: "Id del Turno/Horario no definido"});
         }
         
-        if(disponibilidad === undefined || horario === undefined || diaHorario === undefined){
-            return res.status(402).json({message: "Datos del Horario incompletos"});
-        }
-
-        if (disponibilidad === "" || horario === "" || diaHorario === ""){
-            return res.status(402).json({message: "Los campos no pueden estar vacíos"});
+        if(disponibilidad === undefined || horario === undefined || diaHorario === undefined || disponibilidad === "" || horario === "" || diaHorario === ""){
+            return res.status(402).json({message: "Datos del Horario incompletos o vacios"});
         }
         
         try{
+            const turnoEncontrado = await turnoService.getTurno(idTurno);
+
+            if (turnoEncontrado.getHorarios && turnoEncontrado.getHorarios().some(h => h.getId() === idHorario)) {
+                return res.status(409).json({ message: `El horario con ID ${idHorario} ya está asociado al turno ${idTurno}.` });
+            }
+
             const nuevoHorario = new Horario(idHorario, disponibilidad, horario, diaHorario);
             const turnoModificado = await turnoService.addHorarioATurno(idTurno, nuevoHorario);
             res.status(200).json(turnoModificado);
         }catch(error){
-            if(error instanceof Error)
-                res.status(404).json({message: error.message});
-            else 
-                res.status(500).json({message: "Error al añadir horario"});
+            if(error instanceof Error){
+                return res.status(404).json({message: error.message});
+            }else{ 
+                return res.status(500).json({message: "Error al añadir horario"});
+            }    
         } 
     }
 
@@ -117,22 +130,19 @@ class TurnoController {
         const turnoId = req.params.idTurno;
         const horarioId = req.params.idHorario;
 
-        if(!turnoId){
-            return res.status(402).json({message: "Id del Turno no definido"});
-        }
-
-        if(!horarioId){
-            return res.status(402).json({message: "Id del Horario no definido"});
+        if(!turnoId || !horarioId){
+            return res.status(402).json({message: "Id del Turno o Horario no definido"});
         }
 
         try {
+            await turnoService.getTurno(turnoId);
             const turnoModificado = await turnoService.deleteHorarioATurno(turnoId, horarioId);
             res.status(200).json(turnoModificado);
         }catch(error){
             if (error instanceof Error){
-                res.status(404).json({message:error.message});
+                return res.status(404).json({message:error.message});
             }else{
-                res.status(500).json({message: "Error al eliminar horario"});
+                return res.status(500).json({message: "Error al eliminar horario"});
             }
         }
     }
