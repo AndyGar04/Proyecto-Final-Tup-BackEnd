@@ -15,8 +15,8 @@ class HorarioService implements HorarioCrud{
     deleteHorario(id: string): Promise<void> {
         return HorarioModel.deleteHorario(id);
     }
-    editHorario(id: string, disponibilidad:boolean, horario: string): Promise<Horario> {
-        return HorarioModel.editHorario(id, disponibilidad, horario);
+    editHorario(id: string, disponibilidad:boolean, horario: string, diaHorario: Date): Promise<Horario> {
+        return HorarioModel.editHorario(id, disponibilidad, horario, diaHorario);
     }
     size(): number {
         return HorarioModel.size();

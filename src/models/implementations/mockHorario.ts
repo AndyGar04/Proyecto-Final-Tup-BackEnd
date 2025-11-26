@@ -51,7 +51,7 @@ export class MockHorario implements HorarioCrud{
         });
     }
 
-    editHorario(id:string, disponibilidad:boolean, horario: string): Promise<Horario> {
+    editHorario(id:string, disponibilidad:boolean, horario: string, diaHorario: Date): Promise<Horario> {
         return new Promise<Horario>((resolve, rejects)=>{
             const horarioEncontrado = this.container.find(
                 (horario:Horario)=> horario.getId()==id
@@ -61,6 +61,7 @@ export class MockHorario implements HorarioCrud{
             }else{
                 horarioEncontrado.setDisponibilidad(disponibilidad);
                 horarioEncontrado.setHorario(horario);
+                horarioEncontrado.setDiaHorario(diaHorario);
                 resolve(horarioEncontrado);
             }
         });
