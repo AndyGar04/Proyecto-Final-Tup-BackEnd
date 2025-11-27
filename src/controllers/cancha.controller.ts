@@ -31,10 +31,10 @@ class CanchaController {
         try{
             const { id, nombreCancha, deporte, tamanio, turno } = req.body;
             if(!id){
-                res.status(402).json({message:"Id no parametrizado"});
+                return res.status(402).json({message:"Id no parametrizado"});
             }
             if (nombreCancha === undefined || deporte === undefined || tamanio  === undefined || turno  === undefined){ 
-                res.status(402).json({message:" Nombre de la cancha, Deporte, Tamanio o Turno no parametrizado "});
+                return res.status(402).json({message:" Nombre de la cancha, Deporte, Tamanio o Turno no parametrizado "});
             }
 
             try {
