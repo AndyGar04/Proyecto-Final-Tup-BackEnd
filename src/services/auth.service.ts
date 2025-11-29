@@ -1,10 +1,7 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { UsuarioCrud } from '../models/interface/usuarioCrud';
 import { Usuario } from '../models/usuario';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'tu_clave_secreta_muy_segura_y_larga_y_muy_segura_y_muy_dificil';
-const JWT_EXPIRATION = process.env.JWT_EXPIRATION || '24h';
+import { generateAccessToken, verifyAccessToken } from '../common/security';
 
 export class AuthService {
     private usuarioRepository: UsuarioCrud;
@@ -20,22 +17,18 @@ export class AuthService {
             return null;
         }
 
-
         const passwordMatch = await bcrypt.compare(password, usuario.password);
 
         if (!passwordMatch) {
             return null;
         }
 
-        // Generar token JWT
-        const token = jwt.sign(
-            {
-                id: usuario.id,
-                email: usuario.email,
-                rol: usuario.rol
-            },
-            JWT_SECRET
-        );
+        // USAMOS LA FUNCIÓN CENTRALIZADA
+        const token = generateAccessToken({
+            id: usuario.id,
+            email: usuario.email,
+            rol: usuario.rol
+        });
 
         const { password: _, ...usuarioSinPassword } = usuario;
 
@@ -56,14 +49,11 @@ export class AuthService {
         
         const usuarioCreado = this.usuarioRepository.create(nuevoUsuario);
 
-        const token = jwt.sign(
-            {
-                id: usuarioCreado.id,
-                email: usuarioCreado.email,
-                rol: usuarioCreado.rol
-            },
-            JWT_SECRET
-        );
+        const token = generateAccessToken({
+            id: usuarioCreado.id,
+            email: usuarioCreado.email,
+            rol: usuarioCreado.rol
+        });
 
         const { password: _, ...usuarioSinPassword } = usuarioCreado;
 
@@ -75,7 +65,7 @@ export class AuthService {
 
     verifyToken(token: string): any {
         try {
-            return jwt.verify(token, JWT_SECRET);
+            return verifyAccessToken(token);
         } catch (error) {
             return null;
         }
