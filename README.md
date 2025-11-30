@@ -219,4 +219,5 @@ Licencia ISC.
 Contactar al equipo de desarrollo.
 
 ## 🖼️ Diagrama UML
-https://ImagenesReadme/UmlProyectoFinal.jpg
+
+![Diagrama UML](/ImagenesReadme/UmlProyectoFinal.jpg)
