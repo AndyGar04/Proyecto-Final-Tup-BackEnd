@@ -12,5 +12,4 @@ clubRoute.put("/:id", authenticateToken, clubController.editClub);
 clubRoute.put("/:idClub/:idCancha", authenticateToken, clubController.addCanchaAClub);
 clubRoute.delete("/:idClub/:idCancha", authenticateToken, clubController.deleteCanchaAClub);
 
-
 export default clubRoute;

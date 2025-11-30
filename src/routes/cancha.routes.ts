@@ -11,5 +11,4 @@ canchaRouter.delete("/:id", authenticateToken, canchaController.deleteCancha);
 canchaRouter.put("/:id", authenticateToken, canchaController.editCancha);
 
 
-export default canchaRouter
-;
+export default canchaRouter;

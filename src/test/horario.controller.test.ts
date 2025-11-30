@@ -1,4 +1,3 @@
-// horario.controller.test.ts
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import HorarioController from '../controllers/horario.controller';
 import horarioService from '../services/horario.service';

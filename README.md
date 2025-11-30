@@ -1,42 +1,222 @@
-# Plataforma de Reservas de Canchas 
+# Backend - Plataforma de Reservas de Canchas
 
-## 🚀 Objetivo
-El objetivo principal de esta WebPage es crear una solución simple para diferentes canchas de la ciudad de Bahia Blanca, con el objetivo de poder implementarse inclusive en otras ciudades. Evitando y mejorando los sistemas actuales, generalmente basados en Excel y WhatsApp.
-En esta página, se podra a grandes razgos. Como cliente alquilar un turno, como administrador de las canchas poder gestionar de una manera prolija los turnos ocupados y disponibles. Y por ultimo el gestor de locales general, que administrara los locales aderidos.
+## 📋 Descripción
+Backend desarrollado en Node.js con TypeScript para la plataforma de reservas de canchas deportivas. Proporciona APIs RESTful para la gestión de usuarios, clubs, canchas, turnos y horarios.
 
-## 🔑 Funcionalidades
-### Para usuarios (clientes / jugadores):
-Registro y login mediante número de celular, con validación vía WhatsApp.
+## 🏗️ Arquitectura del Proyecto
 
-#### Búsqueda de canchas por:
-- Ubicación
-- Precio
-- Tipo de piso
-- Disponibilidad
+### Estructura de Carpetas
+```text
+src/
+├── common/                 # Utilidades comunes
+│   ├── errors.ts          # Clases de errores personalizados
+│   └── security.ts        # Utilidades de seguridad (JWT)
+├── controllers/           # Controladores de la API
+│   ├── auth.controller.ts
+│   ├── cancha.controller.ts
+│   ├── club.controller.ts
+│   ├── horario.controller.ts
+│   └── turno.controller.ts
+├── middlewares/           # Middlewares de Express
+│   ├── auth.middleware.ts
+│   └── validate.middleware.ts
+├── models/               # Modelos de datos e interfaces
+│   ├── implementations/  # Implementaciones Mock
+│   ├── interface/        # Interfaces CRUD
+│   └── *.ts             # Modelos de entidades
+├── routes/               # Definición de rutas
+├── schemas/              # Esquemas de validación (Zod)
+├── services/             # Lógica de negocio
+└── test/                 # Pruebas unitarias e2e
+```
 
-Ayudando a que las reservas sean rápidas y en segundos. Y pudiendo acceder desde la web sin tener el contacto directo.
+## 🚀 Características Principales
 
-### Para locales (dueños de las canchas / trabajadores en esa area):
-- Historial de reservas.
-- Notificaciones de partidos (recordatorios, cancelaciones).
-- Panel de administración de sus canchas.
-- Configuración de precios y horarios.
-- Confirmación o rechazo de reservas.
-- Posibilidad de gestionar pagos desde WhatsApp.
+### 🔐 Autenticación y Autorización
+- JWT-based authentication  
+- Role-based access control (admin/user)  
+- Password hashing con bcryptjs  
+- Token verification middleware  
+- Validación de esquemas con Zod  
 
-### Para administrador general
-- Dashboard con información de todos los locales, usuarios y reservas.
-- Control de comisiones (% por reserva).
-- Gestión de usuarios y dueños de canchas.
+### 📊 Entidades del Sistema
+- **Usuarios:** Gestión de perfiles y roles  
+- **Clubs:** Información de establecimientos deportivos  
+- **Canchas:** Gestión de espacios deportivos  
+- **Turnos:** Configuración de horarios y precios  
+- **Horarios:** Disponibilidad temporal  
 
-## ⚙️ Tecnologías a utilizar:
-> Frontend (usuarios y dueños): React Web y Tailwind.
-> Backend: Typescript, Node.js con Express.
-> Base de datos: PostgreSQL (Ya utilizado en otros trabahos).
-> Autenticación: via JWT.
-> Hosting: A definir.
+## 🛡️ Seguridad
+- Validación de datos de entrada  
+- Manejo centralizado de errores  
+- Protección de endpoints sensibles  
+- Sanitización de respuestas  
 
-Cualquier cambio lo vamos a ir adiriendo
+## 💻 Tecnologías Utilizadas
+### Backend
+- Node.js
+- TypeScript
+- Express.js
+- JWT
+- bcryptjs
+- Zod
+- CORS
 
-## Diagrama UML
-![ImagenDiagramaUML](ImagenesReadme/ImagenDiagramaUML.jpg)
+### Testing
+- Vitest
+- Supertest
+
+### Desarrollo
+- TypeScript Compiler
+- ts-node-dev
+
+## ⚙️ Instalación y Configuración
+
+### Prerrequisitos
+- Node.js 18+
+- npm o yarn
+
+### Instalación
+```bash
+git clone <repository-url>
+cd backend
+npm install
+cp .env.example .env
+```
+
+### Variables de Entorno
+```env
+PORT=3000
+JWT_SECRET=tu_clave_secreta_super_segura_cambiala_en_produccion_123456789
+JWT_EXPIRATION=24h
+NODE_ENV=development
+```
+
+### Scripts Disponibles
+```bash
+npm run dev:ts
+npm run dev:js
+npm run build
+npm run test
+```
+
+## 🎯 Endpoints de la API
+### Autenticación (/auth)
+- POST /auth/login  
+- POST /auth/register  
+- GET /auth/verify  
+- GET /auth/usuarios  
+
+### Clubs (/club)
+- GET /club  
+- GET /club/:id  
+- POST /club  
+- PUT /club/:id  
+- DELETE /club/:id  
+- PUT /club/:idClub/:idCancha  
+- DELETE /club/:idClub/:idCancha  
+
+### Canchas (/cancha)
+- GET /cancha  
+- GET /cancha/:id  
+- POST /cancha  
+- PUT /cancha/:id  
+- DELETE /cancha/:id  
+
+### Turnos (/turno)
+- GET /turno  
+- GET /turno/:id  
+- POST /turno  
+- PUT /turno/:id  
+- DELETE /turno/:id  
+- PUT /turno/:idTurno/:idHorario  
+- DELETE /turno/:idTurno/:idHorario  
+
+### Horarios (/horario)
+- GET /horario  
+- GET /horario/:id  
+- POST /horario  
+- PUT /horario/:id  
+- DELETE /horario/:id  
+
+## 🔐 Autenticación
+
+### Registro
+```json
+POST /auth/register
+{
+  "nombre": "Usuario Ejemplo",
+  "email": "usuario@ejemplo.com",
+  "password": "contraseña123"
+}
+```
+
+### Login
+```json
+POST /auth/login
+{
+  "email": "usuario@ejemplo.com",
+  "password": "contraseña123"
+}
+```
+
+### Uso de Tokens
+```
+Authorization: Bearer <token_jwt>
+```
+
+## 🧪 Testing
+```bash
+npm run test
+npm run test -- --watch
+```
+
+## 📊 Modelo de Datos
+
+### Relaciones entre Entidades
+```text
+Club (1) ───── (N) Cancha (1) ───── (1) Turno (1) ───── (N) Horario
+```
+
+### Entidades Principales
+- Usuario  
+- Club  
+- Cancha  
+- Turno  
+- Horario  
+
+## 🔄 Flujos de Trabajo
+
+### Reserva de Cancha
+1. Usuario se autentica  
+2. Consulta clubs y canchas  
+3. Filtra por deporte y horarios  
+4. Selecciona turno  
+5. Confirma reserva  
+
+### Gestión de Club
+1. Admin gestiona clubs  
+2. Añade/elimina canchas  
+3. Configura turnos  
+4. Gestiona horarios  
+
+## 🚀 Despliegue
+### Desarrollo
+```bash
+npm run dev:ts
+```
+
+### Producción
+```bash
+npm run build
+npm start
+```
+
+## 📝 Licencia
+Licencia ISC.
+
+## 📞 Soporte
+Contactar al equipo de desarrollo.
+
+## 🖼️ Diagrama UML
+https://ImagenesReadme/UmlProyectoFinal.jpg

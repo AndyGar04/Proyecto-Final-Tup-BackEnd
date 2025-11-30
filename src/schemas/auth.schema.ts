@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-
 export const registerSchema = z.object({
     nombre: z.string({
         message: 'El nombre es requerido'

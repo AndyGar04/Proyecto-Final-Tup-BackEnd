@@ -12,5 +12,4 @@ turnoRoute.put("/:id", authenticateToken, turnoController.editTurno);
 turnoRoute.put("/:idTurno/:idHorario", authenticateToken, turnoController.addHorario);
 turnoRoute.delete("/:idTurno/:idHorario", authenticateToken, turnoController.deleteHorarioATurno);
 
-
 export default turnoRoute;
