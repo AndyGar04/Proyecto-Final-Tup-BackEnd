@@ -4,8 +4,8 @@ import { authenticateToken } from '../middlewares/auth.middleware';
 
 const turnoRoute = Router();
 
-turnoRoute.get("/", authenticateToken, turnoController.getTurnos);
-turnoRoute.get("/:id", authenticateToken, turnoController.getTurno);
+turnoRoute.get("/", turnoController.getTurnos);
+turnoRoute.get("/:id", turnoController.getTurno);
 turnoRoute.post("/", authenticateToken, turnoController.addTurno);
 turnoRoute.delete("/:id", authenticateToken, turnoController.deleteTurno);
 turnoRoute.put("/:id", authenticateToken, turnoController.editTurno);
