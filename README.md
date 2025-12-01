@@ -218,6 +218,16 @@ Licencia ISC.
 ## 📞 Soporte
 Contactar al equipo de desarrollo.
 
+##  Documentación Interactiva
+
+Para ver los ejemplos de requests, responses y probar la API directamente, podés acceder a nuestra colección documentada en Postman:
+
+- **[Ver Documentación Completa en Postman](https://www.postman.com/andygar04/gestion-canchas-tup)**
+
+## 🖼️ Diagrama ER
+
+![Diagrama ER](DiagramaER.png)
+
 ## 🖼️ Diagrama UML
 
 ![Diagrama UML](/ImagenesReadme/UmlProyectoFinal.jpg)
