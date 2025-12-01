@@ -1,15 +1,15 @@
 import {Router} from 'express';
 import turnoController from '../controllers/turno.controller';
+import { authenticateToken } from '../middlewares/auth.middleware';
 
 const turnoRoute = Router();
 
 turnoRoute.get("/", turnoController.getTurnos);
 turnoRoute.get("/:id", turnoController.getTurno);
-turnoRoute.post("/", turnoController.addTurno);
-turnoRoute.delete("/:id", turnoController.deleteTurno);
-turnoRoute.put("/:id", turnoController.editTurno);
-turnoRoute.put("/:idTurno/:idHorario", turnoController.addHorario);
-turnoRoute.delete("/:idTurno/:idHorario", turnoController.deleteHorarioATurno);
-
+turnoRoute.post("/", authenticateToken, turnoController.addTurno);
+turnoRoute.delete("/:id", authenticateToken, turnoController.deleteTurno);
+turnoRoute.put("/:id", authenticateToken, turnoController.editTurno);
+turnoRoute.put("/:idTurno/:idHorario", authenticateToken, turnoController.addHorario);
+turnoRoute.delete("/:idTurno/:idHorario", authenticateToken, turnoController.deleteHorarioATurno);
 
 export default turnoRoute;

@@ -1,11 +1,43 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../services/auth.service';
 import { MockUsuario } from '../models/implementations/mockUsuario';
+import { AuthenticationError } from '../common/errors';
+import { verifyAccessToken } from '../common/security';
 
 const usuarioRepository = new MockUsuario();
 const authService = new AuthService(usuarioRepository);
 
-// Se extiende la interfaz Request para incluir el usuario autenticado
+export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+    if (req.method === 'GET') {
+        return next();
+    }
+
+    try {
+        const authHeader = req.headers.authorization; 
+
+        if (!authHeader) {
+            throw new AuthenticationError("No se proporciono token de autenticacion");
+        }
+
+        const token = authHeader.split(' ')[1]; 
+        
+        if (!token) {
+            throw new AuthenticationError("Formato de token invalido");
+        }
+
+        const userPayload = verifyAccessToken(token);
+        req.usuario = userPayload;
+
+        next();
+
+    } catch (error) {
+        if (error instanceof AuthenticationError) {
+            return res.status(error.statusCode).json({ message: error.message });
+        }
+        return res.status(401).json({ message: "Token invalido o expirado" });
+    }
+};
+
 declare global {
     namespace Express {
         interface Request {
@@ -16,9 +48,8 @@ declare global {
 
 export const authenticateToken = (req: Request, res: Response, next: NextFunction): void => {
     try {
-        // Obtener el token del header Authorization
         const authHeader = req.headers['authorization'];
-        const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+        const token = authHeader && authHeader.split(' ')[1];
 
         if (!token) {
             res.status(401).json({
@@ -28,7 +59,6 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
             return;
         }
 
-        // Verificar el token
         const decoded = authService.verifyToken(token);
 
         if (!decoded) {
@@ -39,7 +69,6 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
             return;
         }
 
-        // Agregar los datos del usuario decodificados al request
         req.usuario = decoded;
         next();
     } catch (error) {
@@ -51,7 +80,6 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
     }
 };
 
-// Middleware para verificar roles específicos
 export const authorizeRoles = (...roles: string[]) => {
     return (req: Request, res: Response, next: NextFunction): void => {
         if (!req.usuario) {

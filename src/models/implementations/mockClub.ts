@@ -92,7 +92,7 @@ export class MockClub implements ClubCrud{
             );
         
             if(!clubEncontrado){
-                return rejects(new Error("El turno no fue encontrado"));
+                return rejects(new Error("El club no fue encontrado"));
             };
         
             const canchas = clubEncontrado.getCanchas();
