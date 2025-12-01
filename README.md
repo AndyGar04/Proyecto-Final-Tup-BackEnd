@@ -226,7 +226,7 @@ Para ver los ejemplos de requests, responses y probar la API directamente, podé
 
 ## 🖼️ Diagrama ER
 
-![Diagrama ER](DiagramaER.png)
+![Diagrama ER](/ImagenesReadme/DiagramaER.png)
 
 ## 🖼️ Diagrama UML
 
