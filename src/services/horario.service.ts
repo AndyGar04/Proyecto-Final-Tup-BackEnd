@@ -1,25 +1,27 @@
 import { Horario } from "../models/horario";
-import { HorarioCrud } from "../models/interface/horarioCrud"; 
-import HorarioModel from "../models/implementations/mockHorario";
+// Implementacion crud usando el modelo mock
+// import HorarioModel from "../models/implementations/mockHorario";
+import { HorarioCrud } from "../models/interface/horarioCrud";
+import SQLiteHorario from "../models/repository/sqliteHorario";
 
 class HorarioService implements HorarioCrud{
     getHorarios(): Promise<Array<Horario>> {
-        return HorarioModel.getHorarios();
+        return SQLiteHorario.getHorarios();
     }
     addHorario(horario: Horario): Promise<Horario> {
-        return HorarioModel.addHorario(horario);
+        return SQLiteHorario.addHorario(horario);
     }
     addHorarios(horarios: Horario[]): Promise<void> {
-        return HorarioModel.addHorarios(horarios);
+        return SQLiteHorario.addHorarios(horarios);
     }
     deleteHorario(id: string): Promise<void> {
-        return HorarioModel.deleteHorario(id);
+        return SQLiteHorario.deleteHorario(id);
     }
     editHorario(id: string, disponibilidad:boolean, horario: string, diaHorario: Date): Promise<Horario> {
-        return HorarioModel.editHorario(id, disponibilidad, horario, diaHorario);
+        return SQLiteHorario.editHorario(id, disponibilidad, horario, diaHorario);
     }
-    size(): number {
-        return HorarioModel.size();
+    size(): Promise<number> {
+        return Promise.resolve(SQLiteHorario.size());
     }
 }
 export default new HorarioService();

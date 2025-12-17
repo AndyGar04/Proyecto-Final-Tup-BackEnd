@@ -5,6 +5,7 @@ import turnoRoute from './routes/turno.routes';
 import canchaRouter from './routes/cancha.routes';
 import clubRoute from './routes/club.routes';
 import authRoute from './routes/auth.routes';
+import { initDb } from './database/database';
 
 class Server {
     public app: express.Application;
@@ -16,6 +17,11 @@ class Server {
         this.middlewares();
         this.routes();
         
+    }
+
+    async initDatabase(){
+        await initDb();
+        console.log("Base de datos inicializada")
     }
 
     middlewares(){

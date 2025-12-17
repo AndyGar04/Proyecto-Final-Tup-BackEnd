@@ -75,8 +75,10 @@ export class MockHorario implements HorarioCrud{
             }
         });
     }
-    size(): number {
-        return this.tam;
+    size(): Promise<number> {
+        return new Promise<number>((resolve) => {
+            resolve(this.tam);
+        });
     }
     
 }

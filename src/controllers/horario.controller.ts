@@ -25,18 +25,15 @@ class HorarioController {
 
     public async addHorario(req: Request, res: Response){
         try{
-            const { id, disponibilidad, horario, diaHorario } = req.body;
-                if(!id){
-                    res.status(402).json({message:"Id no parametrizado"});
+            const { disponibilidad, horario, diaHorario } = req.body;
+                if(disponibilidad === undefined || horario === undefined || diaHorario === undefined) { 
+                    res.status(402).json({message:"Disponibilidad, diaHorario u horario no parametrizado"});
                 }else{
-                    if(disponibilidad === undefined || horario === undefined || diaHorario === undefined) { 
-                        res.status(402).json({message:"Disponibilidad, diaHorario u horario no parametrizado"});
-                    }else{
-                        const horarioCreado = new Horario(id, disponibilidad, horario, diaHorario);
-                        const nuevoHorario = await horarioService.addHorario(horarioCreado);
-                        res.status(202).json(nuevoHorario);
-                    }    
-                }
+                    const horarioCreado = new Horario("0", disponibilidad, horario, new Date(diaHorario));
+                    const nuevoHorario = await horarioService.addHorario(horarioCreado);
+                    res.status(202).json(nuevoHorario);
+                }    
+            
         }catch(error){
             res.status(500).json({ message: "Error al agregar horario", error});
         }    
@@ -74,13 +71,20 @@ class HorarioController {
             );
         }
 
-        try{
-            const horarioModificado = await horarioService.editHorario(id, disponibilidad, horario, diaHorario);
+        try {
+            const fechaConvertida = new Date(diaHorario);
+            
+            const horarioModificado = await horarioService.editHorario(
+                id, 
+                disponibilidad, 
+                horario, 
+                fechaConvertida
+            );
             res.status(200).json(horarioModificado);
-        }catch(error){
+        } catch(error) {
             if(error instanceof Error)
-                res.status(404).json({message:error.message})
-        } 
+                res.status(404).json({message: error.message})
+        }
     }
 
     public size(req:Request, res:Response){
