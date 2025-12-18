@@ -104,10 +104,11 @@ export class MockTurno implements TurnoCrud{
         });
     }
 
-    size(): number {
-        return this.tam;
+    size(): Promise<number> {
+        return new Promise<number>((resolve) => {
+            resolve(this.tam);
+        });
     }
-    
 }
 
 export default new MockTurno();

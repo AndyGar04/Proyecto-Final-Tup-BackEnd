@@ -1,32 +1,34 @@
 import { Turno } from "../models/turno";
-import { TurnoCrud } from "../models/interface/turnoCrud"; 
-import TurnoModel from "../models/implementations/mockTurno";
+import { TurnoCrud } from "../models/interface/turnoCrud";
+//Implementacion con mock 
+//import TurnoModel from "../models/implementations/mockTurno";
+import SQLiteTurno from "../models/repository/sqliteTurnos";
 import { Horario } from "../models/horario";
 
 class TurnoService implements TurnoCrud{
     getTurnos(): Promise<Array<Turno>> {
-        return TurnoModel.getTurnos();
+        return SQLiteTurno.getTurnos();
     }
     getTurno(id: string): Promise<Turno> {
-        return TurnoModel.getTurno(id);
+        return SQLiteTurno.getTurno(id);
     }
     addTurno(turno: Turno): Promise<Turno> {
-        return TurnoModel.addTurno(turno);
+        return SQLiteTurno.addTurno(turno);
     }
     deleteTurno(id: string): void {
-        TurnoModel.deleteTurno(id);
+        SQLiteTurno.deleteTurno(id);
     }
     editTurno(id: string, descripcionTurno: string, costo: number): Promise<Turno> {
-        return TurnoModel.editTurno(id, descripcionTurno, costo);
+        return SQLiteTurno.editTurno(id, descripcionTurno, costo);
     }
     addHorarioATurno(id: string, nuevoHorario: Horario): Promise<Turno> {
-        return TurnoModel.addHorarioATurno(id, nuevoHorario);
+        return SQLiteTurno.addHorarioATurno(id, nuevoHorario);
     }
     deleteHorarioATurno(turnoId: string, horarioId: string): Promise<Turno> {
-        return TurnoModel.deleteHorarioATurno(turnoId, horarioId);
+        return SQLiteTurno.deleteHorarioATurno(turnoId, horarioId);
     }
-    size(): number {
-        return TurnoModel.size();
+    size(): Promise<number> {
+        return SQLiteTurno.size();
     }
 }
 export default new TurnoService();

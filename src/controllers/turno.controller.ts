@@ -29,30 +29,20 @@ class TurnoController {
     }
 
     public async addTurno(req: Request, res: Response){
-        try{
-            const { id, descripcionTurno, costo} = req.body;
-            if(!id){
-                res.status(402).json({message:"Id no parametrizado"});
-            }
-            if(!descripcionTurno || !costo){
-                res.status(402).json({message:"Descripcion turno, costo u horario no parametrizado"});
+        try {
+            const { descripcionTurno, costo } = req.body;
+
+            if (!descripcionTurno || costo === undefined) {
+                return res.status(400).json({ message: "Faltan datos: descripcionTurno o costo" });
             }
 
-            try {
-                await turnoService.getTurno(id); 
-                return res.status(409).json({ message: `Ya existe un turno con el ID ${id}.` });
-            } catch (error) {
-                // Si getTurno falla con 404, significa que el ID es nuevo, y podemos continuar.
-                // Si getTurno devuelve un error distinto (por ejemplo, 500), se manejará en el catch exterior.
-            }
+            const nuevoTurnoReq = new Turno("0", descripcionTurno, costo);
+            const turnoCreado = await turnoService.addTurno(nuevoTurnoReq);
             
-            // Si las validaciones pasan, creamos el nuevo turno
-            const turnoCreado = new Turno(id, descripcionTurno, costo);
-            const nuevoTurno = await turnoService.addTurno(turnoCreado);
-            res.status(202).json(nuevoTurno);
-        }catch(error){
-            res.status(500).json({ message: "Error al agregar turno", error});
-        }    
+            res.status(201).json(turnoCreado);
+        } catch (error) {
+            res.status(500).json({ message: "Error al añadir turno", error: String(error) });
+        }
     }
 
     public deleteTurno(req: Request, res: Response){
@@ -94,55 +84,47 @@ class TurnoController {
         } 
     }
 
-    public async addHorario(req: Request, res: Response){
-        const idTurno = req.params.idTurno; // ID del Turno a agregar horario
-        const idHorario = req.params.idHorario; //ID del Horario a agregar horario
-        const { disponibilidad, horario, diaHorario } = req.body;
-        
-        if(!idTurno || !idHorario){
-            return res.status(402).json({message: "Id del Turno/Horario no definido"});
-        }
-        
-        if(disponibilidad === undefined || horario === undefined || diaHorario === undefined || disponibilidad === "" || horario === "" || diaHorario === ""){
-            return res.status(402).json({message: "Datos del Horario incompletos o vacios"});
-        }
-        
-        try{
-            const turnoEncontrado = await turnoService.getTurno(idTurno);
+    public async addHorarioATurno(req: Request, res: Response){
+        try {
+            const idTurno = req.params.idTurno;
+            const { disponibilidad, horario, diaHorario } = req.body;
 
-            if (turnoEncontrado.getHorarios && turnoEncontrado.getHorarios().some(h => h.getId() === idHorario)) {
-                return res.status(409).json({ message: `El horario con ID ${idHorario} ya está asociado al turno ${idTurno}.` });
+            if (!idTurno || disponibilidad === undefined || !horario || !diaHorario) {
+                return res.status(400).json({ message: "Faltan parametros para el horario" });
             }
 
-            const nuevoHorario = new Horario(idHorario, disponibilidad, horario, diaHorario);
+            const fechaDate = new Date(diaHorario);
+
+            const nuevoHorario = new Horario("0", disponibilidad, horario, fechaDate);
+            
             const turnoModificado = await turnoService.addHorarioATurno(idTurno, nuevoHorario);
             res.status(200).json(turnoModificado);
-        }catch(error){
-            if(error instanceof Error){
-                return res.status(404).json({message: error.message});
-            }else{ 
-                return res.status(500).json({message: "Error al añadir horario"});
-            }    
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: "Error al añadir horario al turno", error: String(error) });
         } 
     }
 
-    public async deleteHorarioATurno(req: Request, res: Response){
+    public async deleteHorarioATurno(req: Request, res: Response) {
         const turnoId = req.params.idTurno;
         const horarioId = req.params.idHorario;
 
-        if(!turnoId || !horarioId){
-            return res.status(402).json({message: "Id del Turno o Horario no definido"});
+        // Validación de parámetros
+        if (!turnoId || !horarioId) {
+            return res.status(400).json({ message: "Id del Turno o Horario no definido" });
         }
 
         try {
-            await turnoService.getTurno(turnoId);
+            // Llamamos al servicio con await
             const turnoModificado = await turnoService.deleteHorarioATurno(turnoId, horarioId);
+            
+            // Devolvemos el turno actualizado (sin el horario eliminado)
             res.status(200).json(turnoModificado);
-        }catch(error){
-            if (error instanceof Error){
-                return res.status(404).json({message:error.message});
-            }else{
-                return res.status(500).json({message: "Error al eliminar horario"});
+        } catch (error) {
+            if (error instanceof Error) {
+                return res.status(404).json({ message: error.message });
+            } else {
+                return res.status(500).json({ message: "Error al eliminar el horario del turno" });
             }
         }
     }

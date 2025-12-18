@@ -9,7 +9,7 @@ turnoRoute.get("/:id", turnoController.getTurno);
 turnoRoute.post("/", authenticateToken, turnoController.addTurno);
 turnoRoute.delete("/:id", authenticateToken, turnoController.deleteTurno);
 turnoRoute.put("/:id", authenticateToken, turnoController.editTurno);
-turnoRoute.put("/:idTurno/:idHorario", authenticateToken, turnoController.addHorario);
+turnoRoute.put("/:idTurno/horario", authenticateToken, turnoController.addHorarioATurno);
 turnoRoute.delete("/:idTurno/:idHorario", authenticateToken, turnoController.deleteHorarioATurno);
 
 export default turnoRoute;

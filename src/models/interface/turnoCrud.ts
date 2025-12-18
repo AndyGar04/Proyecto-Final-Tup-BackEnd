@@ -9,5 +9,5 @@ export interface TurnoCrud {
     editTurno(id:string, descripcionTurno: string, costo:number):Promise<Turno>;
     addHorarioATurno(id: string, nuevoHorario: Horario): Promise<Turno>;
     deleteHorarioATurno(turnoId:string, horarioId:string): Promise<Turno>;
-    size():number;
+    size():Promise<number>;
 }

@@ -114,7 +114,7 @@ describe('TurnoController', () => {
             (turnoService.addHorarioATurno as any).mockResolvedValue({ ...mockTurno, horarios: [mockHorario, newHorarioData] });
 
             // Act
-            await TurnoController.addHorario(mockRequest, mockResponse);
+            await TurnoController.addHorarioATurno(mockRequest, mockResponse);
 
             // Assert
             expect(turnoService.getTurno).toHaveBeenCalledWith("1");
@@ -131,7 +131,7 @@ describe('TurnoController', () => {
             (turnoService.getTurno as any).mockResolvedValue(mockTurno);
 
             // Act
-            await TurnoController.addHorario(mockRequest, mockResponse);
+            await TurnoController.addHorarioATurno(mockRequest, mockResponse);
 
             // Assert
             expect(turnoService.getTurno).toHaveBeenCalledWith("1");
@@ -150,7 +150,7 @@ describe('TurnoController', () => {
             (turnoService.getTurno as any).mockRejectedValue(error);
 
             // Act
-            await TurnoController.addHorario(mockRequest, mockResponse);
+            await TurnoController.addHorarioATurno(mockRequest, mockResponse);
 
             // Assert
             expect(turnoService.getTurno).toHaveBeenCalledWith("10");

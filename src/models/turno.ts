@@ -44,6 +44,6 @@ export class Turno{
         if (!Array.isArray(listaHorarios)) {
             throw new Error("listaHorarios debe ser un arreglo válido de Horario");
         }
-        this.horarios.push(...listaHorarios);
+        this.horarios = listaHorarios;
     }
 }
