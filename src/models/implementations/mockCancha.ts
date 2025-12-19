@@ -70,8 +70,10 @@ export class MockCancha implements CanchaCrud {
         });
     }
     
-    size(): number {
-        return this.tam;
+    size(): Promise<number> {
+        return new Promise<number>((resolve)=>{
+            resolve(this.tam);
+        });
     }
 
 }
