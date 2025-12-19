@@ -2,7 +2,7 @@ import { Turno } from "../models/turno";
 import { TurnoCrud } from "../models/interface/turnoCrud";
 //Implementacion con mock 
 //import TurnoModel from "../models/implementations/mockTurno";
-import SQLiteTurno from "../models/repository/sqliteTurnos";
+import SQLiteTurno from "../models/repository/sqliteTurno";
 import { Horario } from "../models/horario";
 
 class TurnoService implements TurnoCrud{

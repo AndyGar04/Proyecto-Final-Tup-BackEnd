@@ -29,74 +29,61 @@ class CanchaController {
 
     public async addCancha(req: Request, res: Response){
         try{
-            const { id, nombreCancha, deporte, tamanio, turno } = req.body;
-            if(!id){
-                return res.status(402).json({message:"Id no parametrizado"});
-            }
-            if (nombreCancha === undefined || deporte === undefined || tamanio  === undefined || turno  === undefined){ 
-                return res.status(402).json({message:" Nombre de la cancha, Deporte, Tamanio o Turno no parametrizado "});
-            }
+            const { nombreCancha, deporte, tamanio, idTurno } = req.body;
 
-            try {
-                await canchaService.getCancha(id); 
-                return res.status(409).json({ message: `Ya existe una cancha con el ID ${id}.` });
-            }catch (error) {
-                // Si getCancha falla con 404, el ID es nuevo, y podemos continuar.
+            if (nombreCancha === undefined || deporte === undefined || tamanio === undefined || idTurno === undefined || !nombreCancha || !deporte || !tamanio){ 
+                return res.status(400).json({message:"Nombre de la cancha, Deporte, Tamanio o idTurno no parametrizado"});
             }
             
+            let turnoExistente;
             try {
-                await turnoService.getTurno(turno); 
+                turnoExistente = await turnoService.getTurno(idTurno);
             } catch (error) {
-                return res.status(404).json({ message: `Turno con ID ${turno} no encontrado. No se puede crear la cancha.` });
+                return res.status(404).json({ message: `Turno con ID ${idTurno} no encontrado. No se puede crear la cancha.` });
             }
 
-            const canchaCreada = new Cancha(id, nombreCancha, deporte, tamanio, turno);
+            const canchaCreada = new Cancha("0", nombreCancha, deporte, tamanio, turnoExistente);
             const nuevaCancha = await canchaService.addCancha(canchaCreada);
-            res.status(202).json(nuevaCancha);
+            res.status(201).json(nuevaCancha);
 
         }catch(error){
-            res.status(500).json({ message: "Error al agregar cancha", error});
+            res.status(500).json({ message: "Error al agregar cancha", error: String(error)});
         }    
     }
 
-    public deleteCancha(req: Request, res: Response){
+    public async deleteCancha(req: Request, res: Response){
         const id = req.params.id;
         if(!id){
-            res.status(402).json({message: "Id no definido"});
-        }else{
-            try{
-                canchaService.deleteCancha(id);
-                res.status(200).json({message: "Cancha eliminada"});
-            }catch(error){
-                if (error instanceof Error){
-                    res.status(404).json({message: error});
-                }
+            return res.status(402).json({message: "Id no definido"});
+        }    
+        try{
+            await canchaService.deleteCancha(id);
+            res.status(200).json({message: "Cancha eliminada"});
+        }catch(error){
+            if (error instanceof Error){
+                res.status(404).json({message: error});
             }
         }
     }
 
     public async editCancha(req: Request, res: Response){
         const id = req.params.id;
-        const {nombreCancha, deporte, tamanio, turno} = req.body;
+        const {nombreCancha, deporte, tamanio, idTurno} = req.body;
 
         if(!id){
-            res.status(402).json({message: "Id no definido"});
-            return;
+            return res.status(402).json({message: "Id no definido"});
         }
 
-        if(nombreCancha === undefined || deporte === undefined || tamanio === undefined || turno === undefined){
-            res.status(402).json({message: "Parametros de cancha incompletos"});
-            return;
+        if (nombreCancha === undefined || deporte === undefined || tamanio === undefined || idTurno === undefined || !nombreCancha || !deporte || !tamanio){
+            return res.status(402).json({message: "Parametros de cancha incompletos"});
         }
 
         try{
             await canchaService.getCancha(id);
 
-            if (turno){
-                await turnoService.getTurno(turno);
-            }
+            const turnoNuevo = await turnoService.getTurno(idTurno);
 
-            const canchaModificada = await canchaService.editCancha(id, nombreCancha, deporte, tamanio, turno );
+            const canchaModificada = await canchaService.editCancha(id, nombreCancha, deporte, tamanio, turnoNuevo);
             res.status(200).json(canchaModificada);
         }catch(error){
             if(error instanceof Error){
@@ -104,11 +91,12 @@ class CanchaController {
             }else{
                 res.status(500).json({ message: "Error interno al modificar cancha"});
             }
-    } 
-}
+        } 
+    }
 
-    public size(req:Request, res:Response){
-        res.status(200).json({size: canchaService.size()})
+    public async size(req:Request, res:Response){
+        const total = await canchaService.size();
+        res.status(200).json({size: total});
     }
 }
 

@@ -7,5 +7,5 @@ export interface CanchaCrud {
     addCancha(cancha:Cancha): Promise<Cancha>;
     deleteCancha(id:string): void;
     editCancha(id:string, nombreCancha:string, deporte:string, tamanio:string, turno: Turno):Promise<Cancha>;
-    size():number;
+    size():Promise<number>;
 }

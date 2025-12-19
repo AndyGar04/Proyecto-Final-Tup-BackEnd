@@ -14,6 +14,17 @@ export async function initDb() {
 
     //Creamos en caso de no existir las tablas necesarias
     await db.exec(`
+        CREATE TABLE IF NOT EXISTS canchas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombreCancha TEXT,
+            deporte TEXT,
+            tamanio TEXT,
+            turnoId INTEGER,
+            FOREIGN KEY (turnoId) REFERENCES turnos(id) ON DELETE SET NULL
+        )
+    `);
+
+    await db.exec(`
         CREATE TABLE IF NOT EXISTS turnos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             descripcionTurno TEXT,
