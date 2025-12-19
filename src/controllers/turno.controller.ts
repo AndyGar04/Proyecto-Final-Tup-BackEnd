@@ -52,7 +52,7 @@ class TurnoController {
         }else{
             try{
                 turnoService.deleteTurno(id);
-                res.status(200).json({message: "Turno eliminada"});
+                res.status(200).json({message: "Turno eliminado"});
             }catch(error){
                 if (error instanceof Error){
                     res.status(404).json({message: error});
@@ -65,20 +65,17 @@ class TurnoController {
         const id = req.params.id;
         const {descripcionTurno, costo} = req.body
         if(!id){
-            res.status(402).json(
-                {message: "Id no definido"}
-            );
-            if(!costo || !descripcionTurno){
-                res.status(402).json(
-                {message: "Turno incorrecta"}
-            );
-            }
-        }else{
-            try{
-                const turnoModificado = await turnoService.editTurno(id, descripcionTurno, costo);
-                res.status(200).json(turnoModificado);
-            }catch(error){
-                if(error instanceof Error)
+            return res.status(402).json({message: "Id no definido"});
+        }    
+        if(descripcionTurno === undefined || costo === undefined || !costo || !descripcionTurno){
+            return res.status(402).json( {message: "Costo o descripcionTurno no definidos"});
+        }
+
+        try{
+            const turnoModificado = await turnoService.editTurno(id, descripcionTurno, costo);
+            res.status(200).json(turnoModificado);
+        }catch(error){
+            if(error instanceof Error){
                     res.status(404).json({message:error.message})
             }
         } 
