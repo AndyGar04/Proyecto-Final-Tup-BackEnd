@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { Club } from '../models/club';
 import { Cancha } from '../models/cancha';
-import { Turno } from '../models/turno'; // Necesario para crear una cancha mock
+import { Turno } from '../models/turno';
 
 describe('Club Model', () => {
     // Mock básico de cancha para las pruebas
@@ -54,7 +54,6 @@ describe('Club Model', () => {
     it('Debe lanzar error en setHorarios si no recibe un array', () => {
         const club = new Club("1", "Dir", "Nom", "Tel", "Mail", 1);
         
-        // Forzamos el tipo any para simular el error de tipo en tiempo de ejecución
         expect(() => club.setHorarios("no es un array" as any)).toThrow("listaCanchas debe ser un arreglo válido");
     });
 });
