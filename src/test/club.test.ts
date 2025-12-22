@@ -8,7 +8,7 @@ describe('Club Model', () => {
     const mockTurno = {} as Turno; // Mock simple ya que no evaluamos Turno aquí
     const mockCancha = new Cancha("C1", "Cancha 1", "Futbol", "5", mockTurno);
 
-    it('Debería crear una instancia de Club correctamente', () => {
+    it('Debe crear una instancia de Club correctamente', () => {
         const club = new Club("1", "Calle 123", "Club Test", "123456", "test@club.com", 5);
 
         expect(club).toBeInstanceOf(Club);
@@ -21,24 +21,22 @@ describe('Club Model', () => {
         expect(club.getCanchas()).toEqual([]); // Por defecto vacío
     });
 
-    it('Debería modificar la dirección usando setDireccion', () => {
+    it('Debe modificar la dirección usando setDireccion', () => {
         const club = new Club("1", "Dir 1", "Nom", "Tel", "Mail", 1);
         club.setDireccion("Nueva Direccion 456");
         expect(club.getDireccion()).toBe("Nueva Direccion 456");
     });
 
-    it('Debería añadir una cancha correctamente usando anadirCancha', () => {
+    it('Debe añadir una cancha correctamente usando setCancha', () => {
         const club = new Club("1", "Dir", "Nom", "Tel", "Mail", 1);
         
-        club.anadirCancha(mockCancha);
+        club.setCanchas([mockCancha]);
         
         expect(club.getCanchas()).toHaveLength(1);
         expect(club.getCanchas()[0]).toBe(mockCancha);
     });
 
-    // Nota: El método en tu modelo se llama 'setHorarios' pero recibe 'listaCanchas'
-    // y las pushea al array de canchas. Probamos ese comportamiento.
-    it('Debería añadir múltiples canchas usando setHorarios (que añade canchas)', () => {
+    it('Debe añadir múltiples canchas usando setHorarios (que añade canchas)', () => {
         const club = new Club("1", "Dir", "Nom", "Tel", "Mail", 1);
         const listaCanchas = [
             new Cancha("C2", "Cancha 2", "Tenis", "Single", mockTurno),
@@ -53,7 +51,7 @@ describe('Club Model', () => {
         expect(cancha!.getId()).toBe("C3");
     });
 
-    it('Debería lanzar error en setHorarios si no recibe un array', () => {
+    it('Debe lanzar error en setHorarios si no recibe un array', () => {
         const club = new Club("1", "Dir", "Nom", "Tel", "Mail", 1);
         
         // Forzamos el tipo any para simular el error de tipo en tiempo de ejecución

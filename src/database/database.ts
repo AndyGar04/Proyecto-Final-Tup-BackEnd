@@ -12,7 +12,17 @@ export async function openDb() {
 export async function initDb() {
     const db = await openDb();
 
-    //Creamos en caso de no existir las tablas necesarias
+    await db.exec(`
+        CREATE TABLE IF NOT EXISTS clubs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            direccion TEXT,
+            nombreClub TEXT,
+            telefono TEXT,
+            gmail TEXT,
+            valoracion INTEGER
+        )
+    `);
+
     await db.exec(`
         CREATE TABLE IF NOT EXISTS canchas (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,7 +30,9 @@ export async function initDb() {
             deporte TEXT,
             tamanio TEXT,
             turnoId INTEGER,
-            FOREIGN KEY (turnoId) REFERENCES turnos(id) ON DELETE SET NULL
+            clubId INTEGER, -- ESTA ES LA COLUMNA QUE EL ERROR NO ENCUENTRA
+            FOREIGN KEY (turnoId) REFERENCES turnos(id),
+            FOREIGN KEY (clubId) REFERENCES clubs(id) ON DELETE CASCADE
         )
     `);
 

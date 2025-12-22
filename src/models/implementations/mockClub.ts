@@ -79,7 +79,9 @@ export class MockClub implements ClubCrud{
             if (!clubEncontrado){
                 rejects(new Error("Este turno no fue encontrado"))
             } else {
-                clubEncontrado.anadirCancha(nuevaCancha);
+                const canchas = clubEncontrado.getCanchas();
+                canchas.push(nuevaCancha);
+                clubEncontrado.setCanchas(canchas);
                 resolve(clubEncontrado);
             }
         });
@@ -107,8 +109,10 @@ export class MockClub implements ClubCrud{
         });
     }
 
-    size(): number {
-        return this.tam;
+    size(): Promise<number> {
+        return new Promise<number>((resolve) => {
+            resolve(this.tam);
+        });
     }
     
 }

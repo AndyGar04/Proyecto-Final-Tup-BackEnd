@@ -63,8 +63,12 @@ export class Club {
     public getCanchas(): Cancha[]{
         return this.canchas
     }
-    public anadirCancha(nuevaCancha: Cancha): void {
-        this.canchas.push(nuevaCancha);
+    
+    public setCanchas(listaCanchas: Cancha[]): void {
+        if (!Array.isArray(listaCanchas)) {
+            throw new Error("listaCanchas debe ser un arreglo válido");
+        }
+        this.canchas = listaCanchas; // Reemplazamos en lugar de hacer push
     }
         
     public setHorarios(listaCanchas: Cancha[]): void {
