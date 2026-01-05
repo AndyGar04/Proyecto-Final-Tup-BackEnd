@@ -5,6 +5,7 @@ import turnoRoute from './routes/turno.routes';
 import canchaRouter from './routes/cancha.routes';
 import clubRoute from './routes/club.routes';
 import authRoute from './routes/auth.routes';
+import dashboardRoute from './routes/dashboard.routes';
 
 class Server {
     public app: express.Application;
@@ -26,6 +27,7 @@ class Server {
 
     routes(){
         this.app.use("/auth", authRoute);
+        this.app.use("/dashboard", dashboardRoute);
         this.app.use("/horario", horarioRoute);
         this.app.use("/turno", turnoRoute);
         this.app.use("/cancha", canchaRouter);

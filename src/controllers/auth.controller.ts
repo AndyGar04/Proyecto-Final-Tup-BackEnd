@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { AuthService } from '../services/auth.service';
-import { MockUsuario } from '../models/implementations/mockUsuario';
+import  MockUsuario  from '../models/implementations/mockUsuario';
 
-const usuarioRepository = new MockUsuario();
+const usuarioRepository = MockUsuario;
 const authService = new AuthService(usuarioRepository);
 
 export const login = async (req: Request, res: Response): Promise<void> => {

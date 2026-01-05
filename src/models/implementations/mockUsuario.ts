@@ -44,4 +44,7 @@ export class MockUsuario implements UsuarioCrud {
         this.usuarios.push(usuario);
         return usuario;
     }
+    
 }
+
+export default new MockUsuario();
