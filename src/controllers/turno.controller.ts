@@ -126,6 +126,53 @@ class TurnoController {
         }
     }
 
+    public async preCrearHorarios(req: Request, res: Response) {
+        try {
+            const idTurno = req.params.idTurno;
+            const { horaInicio, horaFin, dia } = req.body;
+
+            if (!idTurno || horaInicio === undefined || horaFin === undefined || !dia) {
+                return res.status(400).json({ message: "Faltan parámetros" });
+            }
+
+            const turnoExistente = await turnoService.getTurno(idTurno);
+            const horariosActuales = turnoExistente.getHorarios();
+
+            let horariosCreados = 0;
+            let horariosOmitidos = 0;
+
+            for (let i = horaInicio; i <= horaFin; i++) {
+                const horarioTexto = `${i}:00`;
+                const fechaSlot = new Date(dia);
+                fechaSlot.setHours(i, 0, 0, 0);
+
+                const yaExiste = horariosActuales.some(h => 
+                    h.getHorario() === horarioTexto && 
+                    h.getDiaHorario().toDateString() === fechaSlot.toDateString()
+                );
+
+                if (!yaExiste) {
+                    const nuevoHorario = new Horario("0", true, horarioTexto, fechaSlot);
+                    await turnoService.addHorarioATurno(idTurno, nuevoHorario);
+                    horariosCreados++;
+                } else {
+                    horariosOmitidos++;
+                }
+            }
+
+            res.status(200).json({
+                message: "Proceso de pre-creacion finalizado",
+                detalles: {
+                    creados: horariosCreados,
+                    omitidosPorDuplicación: horariosOmitidos
+                }
+            });
+
+        } catch (error) {
+            res.status(500).json({ message: "Error en la pre-creacion", error: String(error) });
+        }
+    }
+
     public size(req:Request, res:Response){
         res.status(200).json({size: turnoService.size()})
     }

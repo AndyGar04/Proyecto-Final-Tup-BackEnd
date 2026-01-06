@@ -11,6 +11,7 @@ turnoRoute.delete("/:id", authenticateToken, turnoController.deleteTurno);
 turnoRoute.put("/:id", authenticateToken, turnoController.editTurno);
 turnoRoute.put("/:idTurno/horario", authenticateToken, turnoController.addHorarioATurno);
 turnoRoute.delete("/:idTurno/:idHorario", authenticateToken, turnoController.deleteHorarioATurno);
+turnoRoute.post("/:idTurno/pre-crear", authenticateToken, turnoController.preCrearHorarios);
 
 //Test de postman pasados
 
