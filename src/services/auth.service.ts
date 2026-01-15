@@ -11,7 +11,7 @@ export class AuthService {
     }
 
     async login(email: string, password: string): Promise<{ token: string; usuario: any } | null> {
-        const usuario = this.usuarioRepository.findByEmail(email);
+        const usuario = await this.usuarioRepository.findByEmail(email);
 
         if (!usuario) {
             return null;
@@ -40,14 +40,14 @@ export class AuthService {
 
     async register(nombre: string, email: string, password: string): Promise<{ token: string; usuario: any } | null> {
 
-        const userExists = this.usuarioRepository.findByEmail(email);
+        const userExists = await this.usuarioRepository.findByEmail(email);
         if (userExists) {
             throw new Error('El email ya está registrado');
         }
 
         const nuevoUsuario = new Usuario(0, email, password, nombre);
         
-        const usuarioCreado = this.usuarioRepository.create(nuevoUsuario);
+        const usuarioCreado = await this.usuarioRepository.create(nuevoUsuario);
 
         const token = generateAccessToken({
             id: usuarioCreado.id,

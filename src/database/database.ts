@@ -54,4 +54,14 @@ export async function initDb() {
             FOREIGN KEY (turnoId) REFERENCES turnos(id) ON DELETE CASCADE
         )
     `);
+
+    await db.exec(`
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            nombre TEXT NOT NULL,
+            rol TEXT DEFAULT 'user'
+        )
+    `);
 }
