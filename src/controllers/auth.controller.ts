@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
 import { AuthService } from '../services/auth.service';
-import { MockUsuario } from '../models/implementations/mockUsuario';
+import sqliteUsuario from '../models/repository/sqliteUsuario';
 
-const usuarioRepository = new MockUsuario();
-const authService = new AuthService(usuarioRepository);
+const authService = new AuthService(sqliteUsuario);
 
 export const login = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -109,9 +108,9 @@ export const verificarToken = (req: Request, res: Response): void => {
     }
 };
 
-export const getAllUsuarios = (req: Request, res: Response): void => {
+export const getAllUsuarios = async (req: Request, res: Response): Promise<void> => {
     try {
-        const usuarios = usuarioRepository.getAll();
+        const usuarios = await sqliteUsuario.getAll();
 
         res.status(200).json({
             ok: true,

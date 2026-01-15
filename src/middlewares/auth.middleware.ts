@@ -1,11 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../services/auth.service';
-import { MockUsuario } from '../models/implementations/mockUsuario';
+import sqliteUsuario from '../models/repository/sqliteUsuario';
 import { AuthenticationError } from '../common/errors';
 import { verifyAccessToken } from '../common/security';
 
-const usuarioRepository = new MockUsuario();
-const authService = new AuthService(usuarioRepository);
+const authService = new AuthService(sqliteUsuario);
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     if (req.method === 'GET') {
