@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import clubService from "../services/club.service"
 import { Club } from "../models/club";
 import { Cancha } from "../models/cancha";
+import { Turno } from "../models/turno";
+import turnoService from "../services/turno.service";
 import canchaService from "../services/cancha.service";
 
 class ClubController{
@@ -13,7 +15,7 @@ class ClubController{
     public async getClub(req: Request, res:Response){
         const id = req.params.id;
         if(!id){
-            res.status(402).json({message: "Id no definido"});
+            res.status(400).json({message: "Id no definido"});
         }else{
             try{
                 const club = await clubService.getClub(id);
@@ -35,7 +37,7 @@ class ClubController{
             const { direccion, nombreClub, telefono, gmail, valoracion } = req.body;
 
             if(direccion === undefined || nombreClub === undefined || telefono === undefined || gmail === undefined || valoracion === undefined){
-                return res.status(402).json({message:"Parametros incorrectos"});
+                return res.status(400).json({message:"Parametros incorrectos"});
             }
         
             const clubCreado = new Club("0", direccion, nombreClub, telefono, gmail, valoracion);
@@ -51,7 +53,7 @@ class ClubController{
     public deleteClub(req: Request, res: Response){
         const id = req.params.id;
         if(!id){
-            return  res.status(402).json({message: "Id no definido"});
+            return  res.status(400).json({message: "Id no definido"});
         }else{
             try{
                 clubService.deleteClub(id);
@@ -69,11 +71,11 @@ class ClubController{
         const {direccion, nombreClub, telefono, gmail, valoracion} = req.body
 
         if(!id){
-            return res.status(402).json({message: "Id no definido"});
+            return res.status(400).json({message: "Id no definido"});
         }
 
         if(direccion === undefined || nombreClub === undefined || telefono === undefined || gmail === undefined || valoracion === undefined){
-            return res.status(402).json({message: "Parametro de Club incorrectos"});
+            return res.status(400).json({message: "Parametro de Club incorrectos"});
         }
         
         try{
@@ -96,11 +98,11 @@ class ClubController{
         const { nombreCancha, deporte, tamanio, idTurno } = req.body;
         
         if(!idClub || !idCancha){
-            return res.status(402).json({message: "Id del Club/Cancha no definido"});
+            return res.status(400).json({message: "Id del Club/Cancha no definido"});
         }
         
         if(!nombreCancha || !deporte || !tamanio || !idTurno){
-            return res.status(402).json({message: "Datos de la cancha incompletos o vacios"});
+            return res.status(400).json({message: "Datos de la cancha incompletos o vacios"});
         }
         
         try {
@@ -120,13 +122,41 @@ class ClubController{
             res.status(404).json({ message: msg });
         } 
     }
+
+    public async addCanchaConTurno(req: Request, res: Response) {
+        const idClub = req.params.idClub;
+        const idCancha = req.params.idCancha;
+        const { nombreCancha, deporte, tamanio, descripcionTurno, costo } = req.body;
+
+        if (!idClub || !idCancha) {
+            return res.status(400).json({ message: "Id del Club o de la Cancha no definido" });
+        }
+
+        if (!nombreCancha || !deporte || !tamanio || !descripcionTurno || !costo) {
+            return res.status(400).json({ message: "Datos incompletos: se requiere información de la cancha y del turno" });
+        }
+
+        try {
+            const turnoParaCrear = new Turno("0", descripcionTurno, costo, []);
+            const nuevoTurno = await turnoService.addTurno(turnoParaCrear);
+
+            const nuevaCancha = new Cancha(idCancha, nombreCancha, deporte, tamanio, nuevoTurno);
+
+            const clubModificado = await clubService.addCanchaAClub(idClub, nuevaCancha);
+            
+            res.status(201).json(clubModificado);
+
+        } catch (error) {
+            res.status(500).json({ message: "Error al crear cancha vinculada", error });
+        }
+    }
     
     public async deleteCanchaAClub(req: Request, res: Response){
         const idClub = req.params.idClub;
         const idCancha = req.params.idCancha;
 
         if(!idClub || !idCancha){
-            return res.status(402).json({message: "Id del Club o de la Cancha no definido"});
+            return res.status(400).json({message: "Id del Club o de la Cancha no definido"});
         }
 
         try {

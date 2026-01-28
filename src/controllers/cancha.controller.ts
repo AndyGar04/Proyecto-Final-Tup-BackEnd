@@ -29,10 +29,10 @@ class CanchaController {
 
     public async addCancha(req: Request, res: Response){
         try{
-            const { nombreCancha, deporte, tamanio, idTurno } = req.body;
+            const { nombreCancha, deporte, tamanio, idTurno, clubId } = req.body;
 
-            if (nombreCancha === undefined || deporte === undefined || tamanio === undefined || idTurno === undefined || !nombreCancha || !deporte || !tamanio){ 
-                return res.status(400).json({message:"Nombre de la cancha, Deporte, Tamanio o idTurno no parametrizado"});
+            if (nombreCancha === undefined || deporte === undefined || tamanio === undefined || idTurno === undefined || clubId === undefined || !nombreCancha || !deporte || !tamanio || !clubId){ 
+                return res.status(400).json({message:"Nombre de la cancha, Deporte, Tamanio, idTurno o clubId no parametrizado"});
             }
             
             let turnoExistente;
@@ -43,7 +43,7 @@ class CanchaController {
             }
 
             const canchaCreada = new Cancha("0", nombreCancha, deporte, tamanio, turnoExistente);
-            const nuevaCancha = await canchaService.addCancha(canchaCreada);
+            const nuevaCancha = await canchaService.addCancha(canchaCreada, clubId);
             res.status(201).json(nuevaCancha);
 
         }catch(error){

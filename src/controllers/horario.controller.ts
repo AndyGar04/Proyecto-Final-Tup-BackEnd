@@ -25,16 +25,16 @@ class HorarioController {
 
     public async addHorario(req: Request, res: Response){
         try{
-            const { disponibilidad, horario, diaHorario } = req.body;
-                if(disponibilidad === undefined || horario === undefined || diaHorario === undefined) { 
-                    res.status(402).json({message:"Disponibilidad, diaHorario u horario no parametrizado"});
-                }else{
-                    const horarioCreado = new Horario("0", disponibilidad, horario, new Date(diaHorario));
-                    const nuevoHorario = await horarioService.addHorario(horarioCreado);
-                    res.status(202).json(nuevoHorario);
-                }    
+            const { disponibilidad, horario, diaHorario, idTurno } = req.body; 
             
-        }catch(error){
+            if(disponibilidad === undefined || horario === undefined || diaHorario === undefined || idTurno === undefined) { 
+                res.status(402).json({message:"Faltan parametros: disponibilidad, diaHorario, horario o idTurno"});
+            } else {
+                const horarioCreado = new Horario("0", disponibilidad, horario, new Date(diaHorario), idTurno);
+                const nuevoHorario = await horarioService.addHorario(horarioCreado);
+                res.status(202).json(nuevoHorario);
+            }    
+        } catch(error) {
             res.status(500).json({ message: "Error al agregar horario", error});
         }    
     }
@@ -57,28 +57,24 @@ class HorarioController {
 
     public async editHorario(req: Request, res: Response){
         const id = req.params.id;
-        const {disponibilidad, horario, diaHorario} = req.body;
+        const {disponibilidad, horario, diaHorario, idTurno} = req.body; // Capturar idTurno
         
-        if(!id){
-            return res.status(402).json(
-                {message: "Id no definido"}
-            );
+        if(!id || !idTurno) {
+            return res.status(402).json({message: "Id de horario o idTurno no definido"});
         }
 
-        if(disponibilidad === undefined || horario === undefined || diaHorario === undefined){
-            return res.status(402).json(
-                {message: "Parametros de horarios, incorrecto"}
-            );
+        if(disponibilidad === undefined || horario === undefined || diaHorario === undefined) {
+            return res.status(402).json({message: "Parámetros de horarios incorrectos"});
         }
 
         try {
             const fechaConvertida = new Date(diaHorario);
-            
             const horarioModificado = await horarioService.editHorario(
                 id, 
                 disponibilidad, 
                 horario, 
-                fechaConvertida
+                fechaConvertida,
+                idTurno
             );
             res.status(200).json(horarioModificado);
         } catch(error) {

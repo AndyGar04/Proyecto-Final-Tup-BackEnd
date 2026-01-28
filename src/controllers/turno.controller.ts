@@ -152,7 +152,7 @@ class TurnoController {
                 );
 
                 if (!yaExiste) {
-                    const nuevoHorario = new Horario("0", true, horarioTexto, fechaSlot);
+                    const nuevoHorario = new Horario("0", true, horarioTexto, fechaSlot, idTurno);
                     await turnoService.addHorarioATurno(idTurno, nuevoHorario);
                     horariosCreados++;
                 } else {
