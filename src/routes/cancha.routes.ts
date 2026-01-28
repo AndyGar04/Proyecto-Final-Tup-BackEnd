@@ -10,5 +10,6 @@ canchaRouter.post("/", authenticateToken, canchaController.addCancha);
 canchaRouter.delete("/:id", authenticateToken, canchaController.deleteCancha);
 canchaRouter.put("/:id", authenticateToken, canchaController.editCancha);
 
+//Test de postman pasados
 
 export default canchaRouter;

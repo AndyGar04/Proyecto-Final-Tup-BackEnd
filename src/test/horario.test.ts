@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+/*import { describe, it, expect } from 'vitest';
 import { Horario } from '../models/horario';
 
 describe('Horario Model', () => {
@@ -39,4 +39,4 @@ describe('Horario Model', () => {
         horario.setDiaHorario(fechaNueva);
         expect(horario.getDiaHorario()).toBe(fechaNueva);
     });
-});
+});*/

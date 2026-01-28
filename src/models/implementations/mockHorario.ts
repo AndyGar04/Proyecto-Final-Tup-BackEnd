@@ -9,13 +9,13 @@ export class MockHorario implements HorarioCrud{
         this.id=1;
         this.tam = 0;
         this.container = new Array<Horario>;
-        this.container = [
+        /*this.container = [
         new Horario("1", true, "10:00", new Date("2024-12-01")),
         new Horario("2", true, "12:00", new Date("2024-12-01")),
         new Horario("3", false, "14:00", new Date("2024-12-01")),
         new Horario("4", true, "16:00", new Date("2024-12-02")),
         new Horario("5", true, "18:00", new Date("2024-12-02")),
-        ];
+        ];*/
         this.tam = 5;
         this.id = 6;
     }
@@ -75,8 +75,10 @@ export class MockHorario implements HorarioCrud{
             }
         });
     }
-    size(): number {
-        return this.tam;
+    size(): Promise<number> {
+        return new Promise<number>((resolve) => {
+            resolve(this.tam);
+        });
     }
     
 }

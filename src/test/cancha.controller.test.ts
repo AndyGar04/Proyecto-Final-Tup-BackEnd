@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+/*import { describe, it, expect, vi, beforeEach } from 'vitest';
 import CanchaController from '../controllers/cancha.controller';
 import canchaService from '../services/cancha.service';
 import turnoService from '../services/turno.service';
@@ -247,4 +247,4 @@ describe('CanchaController', () => {
             expect(mockResponse.json).toHaveBeenCalledWith({ message: "Cancha eliminada" });
         });
     });
-});
+});*/

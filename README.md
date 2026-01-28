@@ -222,7 +222,7 @@ Contactar al equipo de desarrollo.
 
 Para ver los ejemplos de requests, responses y probar la API directamente, podés acceder a nuestra colección documentada en Postman:
 
-- **[Ver Documentación Completa en Postman](https://www.postman.com/andygar04/gestion-canchas-tup)**
+- **[Ver Documentación Completa en Postman](https://www.postman.com/speeding-rocket-722542/workspace/gestion-canchas-tup)**
 
 ## 🖼️ Diagrama ER
 

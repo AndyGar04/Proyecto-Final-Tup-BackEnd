@@ -10,4 +10,6 @@ horarioRoute.post("/", authenticateToken, horarioController.addHorario);
 horarioRoute.delete("/:id", authenticateToken, horarioController.deleteHorario);
 horarioRoute.put("/:id", authenticateToken, horarioController.editHorario);
 
+//Test de postman pasados
+
 export default horarioRoute;
