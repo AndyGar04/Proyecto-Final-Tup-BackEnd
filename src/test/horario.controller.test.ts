@@ -1,4 +1,4 @@
-/*import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import HorarioController from '../controllers/horario.controller';
 import horarioService from '../services/horario.service';
 import { Horario } from '../models/horario';
@@ -19,7 +19,8 @@ const mockHorario = new Horario(
     "1", 
     true, 
     "09:00", 
-    new Date("2025-11-27")
+    new Date("2025-11-27"),
+    "1" // idTurno
 );
 const mockHorarios = [mockHorario];
 
@@ -32,67 +33,52 @@ const mockResponse = {
 
 describe('HorarioController', () => {
     
-    // Limpiar mocks antes de cada test
     beforeEach(() => {
         vi.clearAllMocks();
+        mockRequest.params = {};
+        mockRequest.body = {};
     });
 
-    // --- getHorarios ---
+    // --- Funcion getHorarios ---
     describe('getHorarios', () => {
         it('Deberia devolver un status 200 y todos los horarios', async () => {
-            // Arrange
             (horarioService.getHorarios as any).mockResolvedValue(mockHorarios);
-            
-            // Act
             await HorarioController.getHorarios(mockRequest, mockResponse);
-
-            // Assert
             expect(mockResponse.status).toHaveBeenCalledWith(200);
             expect(mockResponse.json).toHaveBeenCalledWith(mockHorarios);
-            expect(horarioService.getHorarios).toHaveBeenCalledTimes(1);
         });
     });
     
-    // --- getHorario ---
+    // --- Funcion getHorario ---
     describe('getHorario', () => {
         it('Deberia devolver un status 200 y el horario encontrado', async () => {
-            // Arrange
             mockRequest.params = { id: "1" };
             (horarioService.getHorarios as any).mockResolvedValue(mockHorarios);
-            
-            // Act
             await HorarioController.getHorario(mockRequest, mockResponse);
-
-            // Assert
             expect(mockResponse.status).toHaveBeenCalledWith(200);
             expect(mockResponse.json).toHaveBeenCalledWith(mockHorario);
         });
 
         it('Deberia devolver un status 404 si el horario no es encontrado', async () => {
-            // Arrange
             mockRequest.params = { id: "99" };
-            (horarioService.getHorarios as any).mockResolvedValue(mockHorarios); // Devuelve datos pero el ID no existe
-            
-            // Act
+            (horarioService.getHorarios as any).mockResolvedValue(mockHorarios);
             await HorarioController.getHorario(mockRequest, mockResponse);
-
-            // Assert
             expect(mockResponse.status).toHaveBeenCalledWith(404);
             expect(mockResponse.json).toHaveBeenCalledWith({ message: "Horario no encontrado" });
         });
     });
 
-    // --- addHorario ---
+    // --- Funcion addHorario ---
     describe('addHorario', () => {
         it('Deberia devolver un status 202 y el nuevo horario creado', async () => {
             // Arrange
             mockRequest.body = {
-                id: "2",
                 disponibilidad: false,
                 horario: "10:00",
-                diaHorario: "2025-11-28" 
+                diaHorario: "2025-11-28",
+                idTurno: "1"
             };
-            const nuevoHorario = new Horario("2", false, "10:00", new Date("2025-11-28"));
+            const nuevoHorario = new Horario("2", false, "10:00", new Date("2025-11-28"), "1");
             (horarioService.addHorario as any).mockResolvedValue(nuevoHorario);
 
             // Act
@@ -104,9 +90,9 @@ describe('HorarioController', () => {
             expect(mockResponse.json).toHaveBeenCalledWith(nuevoHorario);
         });
 
-        it('Deberia devolver un status 402 si falta la disponibilidad o el horario o diaHorario', async () => {
+        it('Deberia devolver un status 402 si faltan parámetros obligatorios (incluido idTurno)', async () => {
             // Arrange
-            mockRequest.body = { id: "3", horario: "11:00" }; // Falta disponibilidad y diaHorario
+            mockRequest.body = { disponibilidad: true, horario: "11:00", diaHorario: "2025-11-28" }; //Falta idTurno
             
             // Act
             await HorarioController.addHorario(mockRequest, mockResponse);
@@ -114,57 +100,11 @@ describe('HorarioController', () => {
             // Assert
             expect(horarioService.addHorario).not.toHaveBeenCalled();
             expect(mockResponse.status).toHaveBeenCalledWith(402);
-        });
-        
-        it('Deberia devolver un status 402 si falta el ID', async () => {
-            // Arrange
-            mockRequest.body = { disponibilidad: true, horario: "11:00", diaHorario: "2025-11-28" }; // Falta ID
-            
-            // Act
-            await HorarioController.addHorario(mockRequest, mockResponse);
-
-            // Assert
-            expect(horarioService.addHorario).not.toHaveBeenCalled();
-            expect(mockResponse.status).toHaveBeenCalledWith(402);
-            expect(mockResponse.json).toHaveBeenCalledWith({ message: "Id no parametrizado" });
-        });
-    });
-    
-    // --- deleteHorario ---
-    describe('deleteHorario', () => {
-        it('Deberia devolver un status 200 y mensaje de exito', () => {
-            // Arrange
-            mockRequest.params = { id: "1" };
-            (horarioService.deleteHorario as any).mockImplementation(() => {});
-
-            // Act
-            HorarioController.deleteHorario(mockRequest, mockResponse);
-
-            // Assert
-            expect(horarioService.deleteHorario).toHaveBeenCalledWith("1");
-            expect(mockResponse.status).toHaveBeenCalledWith(200);
-            expect(mockResponse.json).toHaveBeenCalledWith({ message: "Horario eliminada" });
-        });
-
-        it('Deberia devolver un status 404 si el servicio lanza un error', () => {
-            // Arrange
-            mockRequest.params = { id: "99" };
-            const error = new Error("Horario no encontrado");
-            (horarioService.deleteHorario as any).mockImplementation(() => {
-                throw error;
-            });
-
-            // Act
-            HorarioController.deleteHorario(mockRequest, mockResponse);
-
-            // Assert
-            expect(horarioService.deleteHorario).toHaveBeenCalledWith("99");
-            expect(mockResponse.status).toHaveBeenCalledWith(404);
-            expect(mockResponse.json).toHaveBeenCalledWith({ message: error });
+            expect(mockResponse.json).toHaveBeenCalledWith({ message: "Faltan parametros: disponibilidad, diaHorario, horario o idTurno" });
         });
     });
 
-    // --- editHorario ---
+    // --- Funcion editHorario ---
     describe('editHorario', () => {
         it('Deberia devolver un status 200 y el horario modificado', async () => {
             // Arrange
@@ -172,65 +112,42 @@ describe('HorarioController', () => {
             mockRequest.body = {
                 disponibilidad: false,
                 horario: "12:00",
-                diaHorario: "2025-11-27"
+                diaHorario: "2025-11-27",
+                idTurno: "1" // Requerido en la edicion
             };
-            const horarioEditado = new Horario("1", false, "12:00", new Date("2025-11-27"));
+            const horarioEditado = new Horario("1", false, "12:00", new Date("2025-11-27"), "1");
             (horarioService.editHorario as any).mockResolvedValue(horarioEditado);
 
             // Act
             await HorarioController.editHorario(mockRequest, mockResponse);
 
             // Assert
-            expect(horarioService.editHorario).toHaveBeenCalledWith("1", false, "12:00", "2025-11-27");
+            expect(horarioService.editHorario).toHaveBeenCalledWith("1", false, "12:00", expect.any(Date), "1");
             expect(mockResponse.status).toHaveBeenCalledWith(200);
             expect(mockResponse.json).toHaveBeenCalledWith(horarioEditado);
         });
         
-        it('Deberia devolver un status 404 si el servicio lanza un error', async () => {
-            // Arrange
-            mockRequest.params = { id: "99" };
-            mockRequest.body = {
-                disponibilidad: true,
-                horario: "12:00",
-                diaHorario: "2025-11-27"
-            };
-            const error = new Error("Horario con id 99 no encontrado");
-            (horarioService.editHorario as any).mockRejectedValue(error);
-
-            // Act
-            await HorarioController.editHorario(mockRequest, mockResponse);
-
-            // Assert
-            expect(horarioService.editHorario).toHaveBeenCalledWith("99", true, "12:00", "2025-11-27");
-            expect(mockResponse.status).toHaveBeenCalledWith(404);
-            expect(mockResponse.json).toHaveBeenCalledWith({ message: error.message });
-        });
-        
-        it('Deberia devolver un status 402 si falta un parámetro en el body', async () => {
+        it('Deberia devolver un status 402 si falta el idTurno en la edicion', async () => {
             // Arrange
             mockRequest.params = { id: "1" };
-            mockRequest.body = { horario: "12:00" }; // Faltan disponibilidad y diaHorario
+            mockRequest.body = { disponibilidad: true, horario: "12:00", diaHorario: "2025-11-27" }; 
             
             // Act
             await HorarioController.editHorario(mockRequest, mockResponse);
 
             // Assert
-            expect(horarioService.editHorario).not.toHaveBeenCalled();
-            });
+            expect(mockResponse.status).toHaveBeenCalledWith(402);
+            expect(mockResponse.json).toHaveBeenCalledWith({ message: "Id de horario o idTurno no definido" });
+        });
     });
 
-    // --- size ---
+    // --- Funcion size ---
     describe('size', () => {
-        it('Deberia devolver un status 200 y el tamaño del servicio', () => {
-            // Arrange
+        it('Deberia devolver un status 200 y el tamaño del servicio', async () => {
             (horarioService.size as any).mockReturnValue(1);
-            
-            // Act
             HorarioController.size(mockRequest, mockResponse);
-
-            // Assert
             expect(mockResponse.status).toHaveBeenCalledWith(200);
             expect(mockResponse.json).toHaveBeenCalledWith({ size: 1 });
         });
     });
-});*/
+});
