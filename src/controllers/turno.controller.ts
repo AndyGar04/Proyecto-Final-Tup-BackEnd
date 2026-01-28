@@ -92,7 +92,7 @@ class TurnoController {
 
             const fechaDate = new Date(diaHorario);
 
-            const nuevoHorario = new Horario("0", disponibilidad, horario, fechaDate);
+            const nuevoHorario = new Horario("0", disponibilidad, horario, fechaDate, idTurno);
             
             const turnoModificado = await turnoService.addHorarioATurno(idTurno, nuevoHorario);
             res.status(200).json(turnoModificado);

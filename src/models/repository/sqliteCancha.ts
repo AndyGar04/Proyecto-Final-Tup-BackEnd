@@ -26,12 +26,38 @@ export class SQLiteCancha implements CanchaCrud {
         return new Cancha(row.id.toString(), row.nombreCancha, row.deporte, row.tamanio, turno);
     }
 
-    async addCancha(cancha: Cancha): Promise<Cancha> {
+    async addCancha(cancha: Cancha, clubId: string): Promise<Cancha> {
         const db = await openDb();
+        
         const result = await db.run(
-            'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId) VALUES (?, ?, ?, ?)',
-            [cancha.getNombreCancha(), cancha.getDeporte(), cancha.getTamanio(), cancha.getTurno().getId()]
+            'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId, clubId) VALUES (?, ?, ?, ?, ?)',
+            [
+                cancha.getNombreCancha(), 
+                cancha.getDeporte(), 
+                cancha.getTamanio(), 
+                cancha.getTurno().getId(),
+                clubId
+            ]
         );
+        
+        cancha.setId(result.lastID?.toString() || "");
+        return cancha;
+    }
+
+    async addCanchaAClub(cancha: Cancha, clubId: string): Promise<Cancha> {
+        const db = await openDb();
+        
+        const result = await db.run(
+            'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId, clubId) VALUES (?, ?, ?, ?, ?)',
+            [
+                cancha.getNombreCancha(), 
+                cancha.getDeporte(), 
+                cancha.getTamanio(), 
+                cancha.getTurno().getId(),
+                clubId
+            ]
+        );
+        
         cancha.setId(result.lastID?.toString() || "");
         return cancha;
     }

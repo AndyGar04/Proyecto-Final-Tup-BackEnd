@@ -3,7 +3,8 @@ export class Horario{
         protected id: string,
         protected disponibilidad: boolean,
         protected horario: string,
-        protected diaHorario: Date
+        protected diaHorario: Date,
+        protected idTurno: string
     ){}
 
     //Getter y Setter de ID
@@ -36,5 +37,13 @@ export class Horario{
     }   
     public setDiaHorario(diaHorario: Date): void {
         this.diaHorario = diaHorario;
+    }
+
+    // Getter y Setter de turnoId
+    public getIdTurno(): string {
+        return this.idTurno;
+    }
+    public setIdTurno(idTurno: string): void {
+        this.idTurno = idTurno;
     }
 }

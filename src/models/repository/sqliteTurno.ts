@@ -14,7 +14,7 @@ export class SQLiteTurno implements TurnoCrud {
             const turno = new Turno(row.id.toString(), row.descripcionTurno, row.costo);
             
             const horariosRow = await db.all('SELECT * FROM horarios WHERE turnoId = ?', [row.id]);
-            const horarios = horariosRow.map(h => new Horario(h.id.toString(), Boolean(h.disponibilidad), h.horario, new Date(h.diaHorario)));
+            const horarios = horariosRow.map(h => new Horario(h.id.toString(), Boolean(h.disponibilidad), h.horario, new Date(h.diaHorario), h.turnoId?.toString() || ""));
             turno.setHorarios(horarios); 
             turnos.push(turno);
         }
@@ -47,7 +47,7 @@ export class SQLiteTurno implements TurnoCrud {
 
         const turno = new Turno(row.id.toString(), row.descripcionTurno, row.costo);
         const horariosRow = await db.all('SELECT * FROM horarios WHERE turnoId = ?', [id]);
-        const horarios = horariosRow.map(h => new Horario(h.id.toString(), Boolean(h.disponibilidad), h.horario, new Date(h.diaHorario)));
+        const horarios = horariosRow.map(h => new Horario(h.id.toString(), Boolean(h.disponibilidad), h.horario, new Date(h.diaHorario), h.turnoId?.toString() || id));
         
         turno.setHorarios(horarios);
         return turno;

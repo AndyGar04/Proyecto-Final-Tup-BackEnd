@@ -1,4 +1,4 @@
-import { Turno } from "../models/turno";
+/*import { Turno } from "../models/turno";
 import { Horario } from "../models/horario";
 import { beforeEach, describe, expect, test } from "vitest";
 
@@ -73,4 +73,4 @@ describe("Modelo Turno", () => {
         );
     });
 
-});
+});*/

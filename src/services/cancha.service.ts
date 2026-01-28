@@ -14,8 +14,8 @@ class CanchaService implements CanchaCrud{
     getCancha(id: string): Promise<Cancha> {
         return SQLiteCancha.getCancha(id);
     }
-    addCancha(cancha: Cancha): Promise<Cancha> {
-        return SQLiteCancha.addCancha(cancha);
+    addCancha(cancha: Cancha, clubId: string): Promise<Cancha> {
+        return SQLiteCancha.addCancha(cancha, clubId);
     }
     deleteCancha(id: string): Promise<void> {
         return SQLiteCancha.deleteCancha(id);

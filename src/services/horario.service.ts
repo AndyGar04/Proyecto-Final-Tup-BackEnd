@@ -17,8 +17,8 @@ class HorarioService implements HorarioCrud{
     deleteHorario(id: string): Promise<void> {
         return SQLiteHorario.deleteHorario(id);
     }
-    editHorario(id: string, disponibilidad:boolean, horario: string, diaHorario: Date): Promise<Horario> {
-        return SQLiteHorario.editHorario(id, disponibilidad, horario, diaHorario);
+    editHorario(id: string, disponibilidad:boolean, horario: string, diaHorario: Date, idTurno: string): Promise<Horario> {
+        return SQLiteHorario.editHorario(id, disponibilidad, horario, diaHorario, idTurno);
     }
     size(): Promise<number> {
         return Promise.resolve(SQLiteHorario.size());
