@@ -14,13 +14,13 @@ export class SQLiteHorario implements HorarioCrud {
             disponibilidad: any; 
             horario: string; 
             diaHorario: string | number | Date; 
-            id_turno: any;
+            turnoId: any;
         }) => new Horario(
             r.id.toString(), 
             Boolean(r.disponibilidad), 
             r.horario, 
             new Date(r.diaHorario),
-            r.id_turno?.toString() || "" // Pasamos el id del turno al constructor
+            r.turnoId?.toString() || "" // Pasamos el id del turno al constructor
         ));
     }
 
@@ -28,7 +28,7 @@ export class SQLiteHorario implements HorarioCrud {
         const db = await openDb();
         
         const result = await db.run(
-            'INSERT INTO horarios (disponibilidad, horario, diaHorario, id_turno) VALUES (?, ?, ?, ?)',
+            'INSERT INTO horarios (disponibilidad, horario, diaHorario, turnoId) VALUES (?, ?, ?, ?)',
             [
                 horario.getDisponibilidad() ? 1 : 0, 
                 horario.getHorario(), 
@@ -55,7 +55,7 @@ export class SQLiteHorario implements HorarioCrud {
         const fechaParaDB = (diaHorario instanceof Date) ? diaHorario : new Date(diaHorario);
 
         await db.run(
-            'UPDATE horarios SET disponibilidad = ?, horario = ?, diaHorario = ?, id_turno = ? WHERE id = ?',
+            'UPDATE horarios SET disponibilidad = ?, horario = ?, diaHorario = ?, turnoId = ? WHERE id = ?',
             [
                 disponibilidad ? 1 : 0, 
                 horario, 
