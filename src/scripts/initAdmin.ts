@@ -33,6 +33,16 @@ async function initializeAdmin() {
             console.log('Password: user123');
         }
 
+        // Crear dueño de prueba
+        const ownerExists = await sqliteUsuario.findByEmail('owner@test.com');
+        if (!ownerExists) {
+            const user = new Usuario(0, 'owner@test.com', 'owner123', 'Owner Prueba', 'owner');
+            await sqliteUsuario.create(user);
+            console.log('Owner de prueba creado exitosamente');
+            console.log('Email: owner@test.com');
+            console.log('Password: owner123');
+        }
+
     } catch (error) {
         console.error('Error al inicializar:', error);
     }
