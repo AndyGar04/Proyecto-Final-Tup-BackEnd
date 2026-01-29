@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import horarioService from "../services/horario.service";
+import turnoService from "../services/turno.service";
 import { Horario } from "../models/horario";
 
 class HorarioController { 
@@ -30,7 +31,21 @@ class HorarioController {
             if(disponibilidad === undefined || horario === undefined || diaHorario === undefined || idTurno === undefined) { 
                 res.status(402).json({message:"Faltan parametros: disponibilidad, diaHorario, horario o idTurno"});
             } else {
-                const horarioCreado = new Horario("0", disponibilidad, horario, new Date(diaHorario), idTurno);
+                
+                const turnoExistente = await turnoService.getTurno(idTurno);
+                const horariosActuales = turnoExistente.getHorarios();
+                const fechaNueva = new Date(diaHorario);
+
+                const yaExiste = horariosActuales.some(h => 
+                    h.getHorario() === horario && 
+                    h.getDiaHorario().toDateString() === fechaNueva.toDateString()
+                );
+
+                if (yaExiste) {
+                    return res.status(409).json({ message: "Ya existe un horario para este turno en esa hora y día." });
+                }
+
+                const horarioCreado = new Horario("0", disponibilidad, horario, fechaNueva, idTurno);
                 const nuevoHorario = await horarioService.addHorario(horarioCreado);
                 res.status(202).json(nuevoHorario);
             }    

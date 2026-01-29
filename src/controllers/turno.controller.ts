@@ -92,12 +92,20 @@ class TurnoController {
 
             const fechaDate = new Date(diaHorario);
 
+            const turnoExistente = await turnoService.getTurno(idTurno);
+            const yaExiste = turnoExistente.getHorarios().some(h => 
+                h.getHorario() === horario && 
+                h.getDiaHorario().toDateString() === fechaDate.toDateString()
+            );
+
+            if (yaExiste) {
+                return res.status(409).json({ message: "Este horario ya existe para el dia seleccionado" });
+            }
+
             const nuevoHorario = new Horario("0", disponibilidad, horario, fechaDate, idTurno);
-            
             const turnoModificado = await turnoService.addHorarioATurno(idTurno, nuevoHorario);
             res.status(200).json(turnoModificado);
         } catch (error) {
-            console.error(error);
             res.status(500).json({ message: "Error al añadir horario al turno", error: String(error) });
         } 
     }
@@ -142,13 +150,13 @@ class TurnoController {
             let horariosOmitidos = 0;
 
             for (let i = horaInicio; i <= horaFin; i++) {
-                const horarioTexto = `${i}:00`;
-                const fechaSlot = new Date(dia);
+                const horarioTexto = `${i < 10 ? '0'+i : i}:00`;
+                const fechaSlot = new Date(dia); 
                 fechaSlot.setHours(i, 0, 0, 0);
 
                 const yaExiste = horariosActuales.some(h => 
                     h.getHorario() === horarioTexto && 
-                    h.getDiaHorario().toDateString() === fechaSlot.toDateString()
+                    new Date(h.getDiaHorario()).toDateString() === fechaSlot.toDateString()
                 );
 
                 if (!yaExiste) {
