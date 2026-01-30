@@ -1,18 +1,21 @@
 import sqlite3 from 'sqlite3';
 import { open, Database } from 'sqlite';
+import { createClient } from "@libsql/client";
+
+const client = createClient({
+    url: process.env.TURSO_DATABASE_URL!,
+    authToken: process.env.TURSO_AUTH_TOKEN!,
+});
 
 export async function openDb() {
-    return open({
-        filename: '/tmp/database.sqlite',
-        driver: sqlite3.Database
-    });
+    return client;
 }
 
 // Función para inicializar las tablas
 export async function initDb() {
     const db = await openDb();
 
-    await db.exec(`
+    await db.execute(`
         CREATE TABLE IF NOT EXISTS clubs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             direccion TEXT,
