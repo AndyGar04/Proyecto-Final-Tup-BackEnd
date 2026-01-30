@@ -13,10 +13,10 @@ export class SQLiteTurno implements TurnoCrud {
         for (const row of result.rows) {
             const turno = new Turno((row.id as number).toString(), row.descripcionTurno as string, row.costo as number);
             
-            const horariosResult = await db.execute({
-                sql: 'SELECT * FROM horarios WHERE turnoId = ?',
-                args: [row.id]
-            });
+            const horariosResult = await db.execute(
+                'SELECT * FROM horarios WHERE turnoId = ?',
+                [row.id ?? ""]
+            );
             const horarios = horariosResult.rows.map((h: any) => new Horario(h.id.toString(), Boolean(h.disponibilidad), h.horario, new Date(h.diaHorario), h.turnoId?.toString() || ""));
             turno.setHorarios(horarios); 
             turnos.push(turno);
@@ -52,6 +52,9 @@ export class SQLiteTurno implements TurnoCrud {
         
         if (result.rows.length === 0) throw new Error("No existe dicho id");
         const row = result.rows[0];
+        if (!row) {
+            throw new Error("No existe dicho id");
+        }
 
         const turno = new Turno((row.id as number).toString(), row.descripcionTurno as string, row.costo as number);
         const horariosResult = await db.execute({
@@ -93,7 +96,7 @@ export class SQLiteTurno implements TurnoCrud {
     async size(): Promise<number> {
         const db = await openDb();
         const result = await db.execute('SELECT COUNT(*) as total FROM turnos');
-        return Number(result.rows[0].total);
+        return Number(result.rows[0]?.total || 0);
     }
 }
 
