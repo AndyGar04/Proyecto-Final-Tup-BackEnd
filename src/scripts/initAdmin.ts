@@ -2,7 +2,7 @@ import { initDb } from '../database/database';
 import sqliteUsuario from '../models/repository/sqliteUsuario';
 import { Usuario } from '../models/usuario';
 
-async function initializeAdmin() {
+export async function initializeAdmin() {
     try {
         // Inicializar la base de datos
         await initDb();
@@ -47,5 +47,3 @@ async function initializeAdmin() {
         console.error('Error al inicializar:', error);
     }
 }
-
-initializeAdmin();
