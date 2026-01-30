@@ -1,19 +1,17 @@
 import Server from "./app";
 
 const server = new Server(3000);
-server.start(()=>{
-    console.log("On port 3000")
-});
+const app = server.app;
 
 async function main() {
     try {
-        await server.initDatabase(); // Primero creamos las tablas
-        server.start(() => {
-            console.log("Servidor corriendo en el puerto 3000");
-        });
+        await server.initDatabase();
+        console.log("Base de datos lista");
     } catch (error) {
-        console.error("Error fatal al iniciar la base de datos:", error);
+        console.error("Error al iniciar DB:", error);
     }
 }
 
 main();
+
+export default app;
