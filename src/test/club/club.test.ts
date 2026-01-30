@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { Club } from '../models/club';
-import { Cancha } from '../models/cancha';
-import { Turno } from '../models/turno';
+import { Club } from '../../models/club';
+import { Cancha } from '../../models/cancha';
+import { Turno } from '../../models/turno';
 
 describe('Club Model', () => {
     // Mock básico de cancha para las pruebas

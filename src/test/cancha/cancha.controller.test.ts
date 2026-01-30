@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import CanchaController from '../controllers/cancha.controller';
-import canchaService from '../services/cancha.service';
-import turnoService from '../services/turno.service';
-import { Cancha } from '../models/cancha';
+import CanchaController from '../../controllers/cancha.controller';
+import canchaService from '../../services/cancha.service';
+import turnoService from '../../services/turno.service';
+import { Cancha } from '../../models/cancha';
 
 // Mock de los servicios
 vi.mock('../services/cancha.service', () => ({
