@@ -7,14 +7,17 @@ export class SQLiteTurno implements TurnoCrud {
     
     async getTurnos(): Promise<Array<Turno>> {
         const db = await openDb();
-        const rows = await db.all('SELECT * FROM turnos');
+        const result = await db.execute('SELECT * FROM turnos');
         const turnos: Turno[] = [];
 
-        for (const row of rows) {
-            const turno = new Turno(row.id.toString(), row.descripcionTurno, row.costo);
+        for (const row of result.rows) {
+            const turno = new Turno((row.id as number).toString(), row.descripcionTurno as string, row.costo as number);
             
-            const horariosRow = await db.all('SELECT * FROM horarios WHERE turnoId = ?', [row.id]);
-            const horarios = horariosRow.map(h => new Horario(h.id.toString(), Boolean(h.disponibilidad), h.horario, new Date(h.diaHorario), h.turnoId?.toString() || ""));
+            const horariosResult = await db.execute({
+                sql: 'SELECT * FROM horarios WHERE turnoId = ?',
+                args: [row.id]
+            });
+            const horarios = horariosResult.rows.map((h: any) => new Horario(h.id.toString(), Boolean(h.disponibilidad), h.horario, new Date(h.diaHorario), h.turnoId?.toString() || ""));
             turno.setHorarios(horarios); 
             turnos.push(turno);
         }
@@ -23,31 +26,39 @@ export class SQLiteTurno implements TurnoCrud {
 
     async addTurno(turno: Turno): Promise<Turno> {
         const db = await openDb();
-        const result = await db.run(
-            'INSERT INTO turnos (descripcionTurno, costo) VALUES (?, ?)',
-            [turno.getDescripcionTurno(), turno.getCosto()]
-        );
-        turno.setId(result.lastID?.toString() || "");
+        const result = await db.execute({
+            sql: 'INSERT INTO turnos (descripcionTurno, costo) VALUES (?, ?)',
+            args: [turno.getDescripcionTurno(), turno.getCosto()]
+        });
+        turno.setId(result.lastInsertRowid?.toString() || "");
         return turno;
     }
 
     async addHorarioATurno(idTurno: string, nuevoHorario: Horario): Promise<Turno> {
         const db = await openDb();
-        await db.run(
-            'INSERT INTO horarios (disponibilidad, horario, diaHorario, turnoId) VALUES (?, ?, ?, ?)',
-            [nuevoHorario.getDisponibilidad() ? 1 : 0, nuevoHorario.getHorario(), nuevoHorario.getDiaHorario().toISOString(), idTurno]
-        );
+        await db.execute({
+            sql: 'INSERT INTO horarios (disponibilidad, horario, diaHorario, turnoId) VALUES (?, ?, ?, ?)',
+            args: [nuevoHorario.getDisponibilidad() ? 1 : 0, nuevoHorario.getHorario(), nuevoHorario.getDiaHorario().toISOString(), idTurno]
+        });
         return this.getTurno(idTurno);
     }
 
     async getTurno(id: string): Promise<Turno> {
         const db = await openDb();
-        const row = await db.get('SELECT * FROM turnos WHERE id = ?', [id]);
-        if (!row) throw new Error("No existe dicho id");
+        const result = await db.execute({
+            sql: 'SELECT * FROM turnos WHERE id = ?',
+            args: [id]
+        });
+        
+        if (result.rows.length === 0) throw new Error("No existe dicho id");
+        const row = result.rows[0];
 
-        const turno = new Turno(row.id.toString(), row.descripcionTurno, row.costo);
-        const horariosRow = await db.all('SELECT * FROM horarios WHERE turnoId = ?', [id]);
-        const horarios = horariosRow.map(h => new Horario(h.id.toString(), Boolean(h.disponibilidad), h.horario, new Date(h.diaHorario), h.turnoId?.toString() || id));
+        const turno = new Turno((row.id as number).toString(), row.descripcionTurno as string, row.costo as number);
+        const horariosResult = await db.execute({
+            sql: 'SELECT * FROM horarios WHERE turnoId = ?',
+            args: [id]
+        });
+        const horarios = horariosResult.rows.map((h: any) => new Horario(h.id.toString(), Boolean(h.disponibilidad), h.horario, new Date(h.diaHorario), h.turnoId?.toString() || id));
         
         turno.setHorarios(horarios);
         return turno;
@@ -55,28 +66,34 @@ export class SQLiteTurno implements TurnoCrud {
 
     async deleteTurno(id: string): Promise<void> {
         const db = await openDb();
-        await db.run('DELETE FROM turnos WHERE id = ?', [id]);
+        await db.execute({
+            sql: 'DELETE FROM turnos WHERE id = ?',
+            args: [id]
+        });
     }
 
     async editTurno(id: string, descripcionTurno: string, costo: number): Promise<Turno> {
         const db = await openDb();
-        await db.run(
-            'UPDATE turnos SET descripcionTurno = ?, costo = ? WHERE id = ?',
-            [descripcionTurno, costo, id]
-        );
+        await db.execute({
+            sql: 'UPDATE turnos SET descripcionTurno = ?, costo = ? WHERE id = ?',
+            args: [descripcionTurno, costo, id]
+        });
         return this.getTurno(id);
     }
 
     async deleteHorarioATurno(turnoId: string, horarioId: string): Promise<Turno> {
         const db = await openDb();
-        await db.run('DELETE FROM horarios WHERE id = ? AND turnoId = ?', [horarioId, turnoId]);
+        await db.execute({
+            sql: 'DELETE FROM horarios WHERE id = ? AND turnoId = ?',
+            args: [horarioId, turnoId]
+        });
         return this.getTurno(turnoId);
     }
 
     async size(): Promise<number> {
         const db = await openDb();
-        const result = await db.get('SELECT COUNT(*) as total FROM turnos');
-        return result.total;
+        const result = await db.execute('SELECT COUNT(*) as total FROM turnos');
+        return Number(result.rows[0].total);
     }
 }
 

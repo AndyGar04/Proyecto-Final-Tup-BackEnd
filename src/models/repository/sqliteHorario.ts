@@ -1,50 +1,47 @@
 import { Horario } from "../horario";
 import { HorarioCrud } from "../interface/horarioCrud";
 import { openDb } from "../../database/database";
-import e from "express";
 
 export class SQLiteHorario implements HorarioCrud {
     
     async getHorarios(): Promise<Array<Horario>> {
         const db = await openDb();
-        const rows = await db.all('SELECT * FROM horarios');
+        const result = await db.execute('SELECT * FROM horarios');
         
-        return rows.map((r: { 
-            id: { toString: () => string; }; 
-            disponibilidad: any; 
-            horario: string; 
-            diaHorario: string | number | Date; 
-            turnoId: any;
-        }) => new Horario(
+        return result.rows.map((r: any) => new Horario(
             r.id.toString(), 
             Boolean(r.disponibilidad), 
             r.horario, 
             new Date(r.diaHorario),
-            r.turnoId?.toString() || "" // Pasamos el id del turno al constructor
+            r.turnoId?.toString() || ""
         ));
     }
 
     async addHorario(horario: Horario): Promise<Horario> {
         const db = await openDb();
         
-        const result = await db.run(
-            'INSERT INTO horarios (disponibilidad, horario, diaHorario, turnoId) VALUES (?, ?, ?, ?)',
-            [
+        const result = await db.execute({
+            sql: 'INSERT INTO horarios (disponibilidad, horario, diaHorario, turnoId) VALUES (?, ?, ?, ?)',
+            args: [
                 horario.getDisponibilidad() ? 1 : 0, 
                 horario.getHorario(), 
                 horario.getDiaHorario().toISOString(),
                 horario.getIdTurno()
             ]
-        );
+        });
         
-        horario.setId(result.lastID?.toString() || ""); 
+        horario.setId(result.lastInsertRowid?.toString() || ""); 
         return horario;
     }
 
     async deleteHorario(id: string): Promise<void> {
         const db = await openDb();
-        const result = await db.run('DELETE FROM horarios WHERE id = ?', [id]);
-        if (result.changes === 0) {
+        const result = await db.execute({
+            sql: 'DELETE FROM horarios WHERE id = ?',
+            args: [id]
+        });
+        
+        if (result.rowsAffected === 0) {
             throw new Error("No existe un Horario con ese id");
         }
     }
@@ -54,23 +51,24 @@ export class SQLiteHorario implements HorarioCrud {
         
         const fechaParaDB = (diaHorario instanceof Date) ? diaHorario : new Date(diaHorario);
 
-        await db.run(
-            'UPDATE horarios SET disponibilidad = ?, horario = ?, diaHorario = ?, turnoId = ? WHERE id = ?',
-            [
+        await db.execute({
+            sql: 'UPDATE horarios SET disponibilidad = ?, horario = ?, diaHorario = ?, turnoId = ? WHERE id = ?',
+            args: [
                 disponibilidad ? 1 : 0, 
                 horario, 
                 fechaParaDB.toISOString(),
                 idTurno,
                 id
             ]
-        );
+        });
+        
         return new Horario(id, disponibilidad, horario, fechaParaDB, idTurno);
     }
 
     async size(): Promise<number> {
         const db = await openDb();
-        const result = await db.get('SELECT COUNT(*) as total FROM horarios');
-        return result.total;
+        const result = await db.execute('SELECT COUNT(*) as total FROM horarios');
+        return Number(result.rows[0].total);
     }
 
     async addHorarios(horarios: Horario[]): Promise<void> {

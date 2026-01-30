@@ -7,31 +7,39 @@ export class SQLiteUsuario implements UsuarioCrud {
     
     async findByEmail(email: string): Promise<Usuario | undefined> {
         const db = await openDb();
-        const row = await db.get('SELECT * FROM usuarios WHERE email = ?', [email]);
+        const result = await db.execute({
+            sql: 'SELECT * FROM usuarios WHERE email = ?',
+            args: [email]
+        });
         
-        if (!row) {
+        if (result.rows.length === 0) {
             return undefined;
         }
 
-        return new Usuario(row.id, row.email, row.password, row.nombre, row.rol);
+        const row = result.rows[0];
+        return new Usuario(row.id as number, row.email as string, row.password as string, row.nombre as string, row.rol as string);
     }
 
     async findById(id: number): Promise<Usuario | undefined> {
         const db = await openDb();
-        const row = await db.get('SELECT * FROM usuarios WHERE id = ?', [id]);
+        const result = await db.execute({
+            sql: 'SELECT * FROM usuarios WHERE id = ?',
+            args: [id]
+        });
         
-        if (!row) {
+        if (result.rows.length === 0) {
             return undefined;
         }
 
-        return new Usuario(row.id, row.email, row.password, row.nombre, row.rol);
+        const row = result.rows[0];
+        return new Usuario(row.id as number, row.email as string, row.password as string, row.nombre as string, row.rol as string);
     }
 
     async getAll(): Promise<Usuario[]> {
         const db = await openDb();
-        const rows = await db.all('SELECT * FROM usuarios');
+        const result = await db.execute('SELECT * FROM usuarios');
         
-        return rows.map(row => new Usuario(row.id, row.email, row.password, row.nombre, row.rol));
+        return result.rows.map((row: any) => new Usuario(row.id, row.email, row.password, row.nombre, row.rol));
     }
 
     async create(usuario: Usuario): Promise<Usuario> {
@@ -40,12 +48,12 @@ export class SQLiteUsuario implements UsuarioCrud {
         // Hash de la contraseña antes de guardar
         const hashedPassword = await bcrypt.hash(usuario.password, 10);
         
-        const result = await db.run(
-            'INSERT INTO usuarios (email, password, nombre, rol) VALUES (?, ?, ?, ?)',
-            [usuario.email, hashedPassword, usuario.nombre, usuario.rol]
-        );
+        const result = await db.execute({
+            sql: 'INSERT INTO usuarios (email, password, nombre, rol) VALUES (?, ?, ?, ?)',
+            args: [usuario.email, hashedPassword, usuario.nombre, usuario.rol]
+        });
         
-        usuario.id = result.lastID || 0;
+        usuario.id = Number(result.lastInsertRowid) || 0;
         usuario.password = hashedPassword;
         
         return usuario;
