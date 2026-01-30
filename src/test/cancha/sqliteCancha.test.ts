@@ -103,7 +103,7 @@ describe('SQLiteCancha - Integración con Base de Datos', () => {
     describe('getCancha', () => {
         it('Debería encontrar una cancha existente por ID', async () => {
             const canchas = await sqliteCancha.getCanchas();
-            const primeraCanchaId = canchas[0].getId();
+            const primeraCanchaId = canchas[0]!.getId();
 
             const cancha = await sqliteCancha.getCancha(primeraCanchaId);
 
@@ -118,7 +118,7 @@ describe('SQLiteCancha - Integración con Base de Datos', () => {
 
         it('Debería retornar la cancha con su turno completo', async () => {
             const canchas = await sqliteCancha.getCanchas();
-            const canchaId = canchas[0].getId();
+            const canchaId = canchas[0]!.getId();
 
             const cancha = await sqliteCancha.getCancha(canchaId);
 
@@ -247,7 +247,7 @@ describe('SQLiteCancha - Integración con Base de Datos', () => {
     describe('deleteCancha', () => {
         it('Debería eliminar una cancha existente', async () => {
             const canchas = await sqliteCancha.getCanchas();
-            const canchaId = canchas[0].getId();
+            const canchaId = canchas[0]!.getId();
             const cantidadInicial = canchas.length;
 
             await sqliteCancha.deleteCancha(canchaId);
@@ -258,7 +258,7 @@ describe('SQLiteCancha - Integración con Base de Datos', () => {
 
         it('No debería encontrar la cancha después de eliminarla', async () => {
             const canchas = await sqliteCancha.getCanchas();
-            const canchaId = canchas[0].getId();
+            const canchaId = canchas[0]!.getId();
 
             await sqliteCancha.deleteCancha(canchaId);
 
@@ -271,8 +271,8 @@ describe('SQLiteCancha - Integración con Base de Datos', () => {
 
         it('Debería eliminar solo la cancha especificada', async () => {
             const canchas = await sqliteCancha.getCanchas();
-            const cancha1Id = canchas[0].getId();
-            const cancha2Id = canchas[1].getId();
+            const cancha1Id = canchas[0]!.getId();
+            const cancha2Id = canchas[1]!.getId();
 
             await sqliteCancha.deleteCancha(cancha1Id);
 
@@ -285,7 +285,7 @@ describe('SQLiteCancha - Integración con Base de Datos', () => {
     describe('editCancha', () => {
         it('Debería actualizar todos los campos de una cancha', async () => {
             const canchas = await sqliteCancha.getCanchas();
-            const canchaId = canchas[0].getId();
+            const canchaId = canchas[0]!.getId();
 
             const canchaEditada = await sqliteCancha.editCancha(
                 canchaId,
@@ -303,7 +303,7 @@ describe('SQLiteCancha - Integración con Base de Datos', () => {
 
         it('Debería actualizar solo el nombre de la cancha', async () => {
             const canchas = await sqliteCancha.getCanchas();
-            const canchaOriginal = canchas[0];
+            const canchaOriginal = canchas[0]!;
             const canchaId = canchaOriginal.getId();
 
             const canchaEditada = await sqliteCancha.editCancha(
@@ -321,7 +321,7 @@ describe('SQLiteCancha - Integración con Base de Datos', () => {
 
         it('Debería persistir los cambios después de editar', async () => {
             const canchas = await sqliteCancha.getCanchas();
-            const canchaId = canchas[0].getId();
+            const canchaId = canchas[0]!.getId();
 
             await sqliteCancha.editCancha(
                 canchaId,
@@ -340,7 +340,7 @@ describe('SQLiteCancha - Integración con Base de Datos', () => {
 
         it('Debería aceptar turno como string (turnoId)', async () => {
             const canchas = await sqliteCancha.getCanchas();
-            const canchaId = canchas[0].getId();
+            const canchaId = canchas[0]!.getId();
 
             const canchaEditada = await sqliteCancha.editCancha(
                 canchaId,
@@ -355,7 +355,7 @@ describe('SQLiteCancha - Integración con Base de Datos', () => {
 
         it('Debería aceptar turno como objeto Turno', async () => {
             const canchas = await sqliteCancha.getCanchas();
-            const canchaId = canchas[0].getId();
+            const canchaId = canchas[0]!.getId();
 
             const canchaEditada = await sqliteCancha.editCancha(
                 canchaId,
@@ -370,7 +370,7 @@ describe('SQLiteCancha - Integración con Base de Datos', () => {
 
         it('Debería mantener el ID de la cancha después de editar', async () => {
             const canchas = await sqliteCancha.getCanchas();
-            const canchaId = canchas[0].getId();
+            const canchaId = canchas[0]!.getId();
 
             const canchaEditada = await sqliteCancha.editCancha(
                 canchaId,
@@ -415,7 +415,7 @@ describe('SQLiteCancha - Integración con Base de Datos', () => {
             const cantidadInicial = await sqliteCancha.size();
             const canchas = await sqliteCancha.getCanchas();
 
-            await sqliteCancha.deleteCancha(canchas[0].getId());
+            await sqliteCancha.deleteCancha(canchas[0]!.getId());
 
             const cantidadFinal = await sqliteCancha.size();
 

@@ -71,7 +71,7 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
 
         it('Debería retornar clubs con sus canchas asociadas', async () => {
             const clubs = await sqliteClub.getClubs();
-            const clubId = clubs[0].getId();
+            const clubId = clubs[0]!.getId();
 
             // Crear turno y cancha para el club
             const db = await openDb();
@@ -87,14 +87,14 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
             const clubActualizado = await sqliteClub.getClub(clubId);
 
             expect(clubActualizado.getCanchas().length).toBe(1);
-            expect(clubActualizado.getCanchas()[0].getNombreCancha()).toBe('Cancha Test');
+            expect(clubActualizado.getCanchas()[0]!.getNombreCancha()).toBe('Cancha Test');
         });
     });
 
     describe('getClub', () => {
         it('Debería encontrar un club existente por ID', async () => {
             const clubs = await sqliteClub.getClubs();
-            const primerClubId = clubs[0].getId();
+            const primerClubId = clubs[0]!.getId();
 
             const club = await sqliteClub.getClub(primerClubId);
 
@@ -122,7 +122,7 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
 
         it('Debería retornar el club con su lista de canchas', async () => {
             const clubs = await sqliteClub.getClubs();
-            const clubId = clubs[0].getId();
+            const clubId = clubs[0]!.getId();
 
             const club = await sqliteClub.getClub(clubId);
 
@@ -204,7 +204,7 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
     describe('deleteClub', () => {
         it('Debería eliminar un club existente', async () => {
             const clubs = await sqliteClub.getClubs();
-            const clubId = clubs[0].getId();
+            const clubId = clubs[0]!.getId();
             const cantidadInicial = clubs.length;
 
             await sqliteClub.deleteClub(clubId);
@@ -215,7 +215,7 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
 
         it('No debería encontrar el club después de eliminarlo', async () => {
             const clubs = await sqliteClub.getClubs();
-            const clubId = clubs[0].getId();
+            const clubId = clubs[0]!.getId();
 
             await sqliteClub.deleteClub(clubId);
 
@@ -228,8 +228,8 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
 
         it('Debería eliminar solo el club especificado', async () => {
             const clubs = await sqliteClub.getClubs();
-            const club1Id = clubs[0].getId();
-            const club2Id = clubs[1].getId();
+            const club1Id = clubs[0]!.getId();
+            const club2Id = clubs[1]!.getId();
 
             await sqliteClub.deleteClub(club1Id);
 
@@ -240,7 +240,7 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
 
         it('Debería verificar la configuración de CASCADE en la base de datos', async () => {
             const clubs = await sqliteClub.getClubs();
-            const clubId = clubs[0].getId();
+            const clubId = clubs[0]!.getId();
 
             // Crear turno y cancha para el club
             const db = await openDb();
@@ -275,7 +275,7 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
     describe('editClub', () => {
         it('Debería actualizar todos los campos de un club', async () => {
             const clubs = await sqliteClub.getClubs();
-            const clubId = clubs[0].getId();
+            const clubId = clubs[0]!.getId();
 
             const clubEditado = await sqliteClub.editClub(
                 clubId,
@@ -295,7 +295,7 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
 
         it('Debería actualizar solo el nombre del club', async () => {
             const clubs = await sqliteClub.getClubs();
-            const clubOriginal = clubs[0];
+            const clubOriginal = clubs[0]!;
             const clubId = clubOriginal.getId();
 
             const clubEditado = await sqliteClub.editClub(
@@ -314,7 +314,7 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
 
         it('Debería persistir los cambios después de editar', async () => {
             const clubs = await sqliteClub.getClubs();
-            const clubId = clubs[0].getId();
+            const clubId = clubs[0]!.getId();
 
             await sqliteClub.editClub(
                 clubId,
@@ -336,7 +336,7 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
 
         it('Debería mantener el ID del club después de editar', async () => {
             const clubs = await sqliteClub.getClubs();
-            const clubId = clubs[0].getId();
+            const clubId = clubs[0]!.getId();
 
             const clubEditado = await sqliteClub.editClub(
                 clubId,
@@ -352,8 +352,8 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
 
         it('Debería actualizar la valoración del club', async () => {
             const clubs = await sqliteClub.getClubs();
-            const clubId = clubs[0].getId();
-            const clubOriginal = clubs[0];
+            const clubId = clubs[0]!.getId();
+            const clubOriginal = clubs[0]!;
 
             const clubEditado = await sqliteClub.editClub(
                 clubId,
@@ -371,7 +371,7 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
     describe('addCanchaAClub', () => {
         it('Debería agregar una cancha existente a un club', async () => {
             const clubs = await sqliteClub.getClubs();
-            const clubId = clubs[0].getId();
+            const clubId = clubs[0]!.getId();
 
             // Crear turno y cancha sin club
             const db = await openDb();
@@ -390,12 +390,12 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
             const clubActualizado = await sqliteClub.addCanchaAClub(clubId, cancha);
 
             expect(clubActualizado.getCanchas().length).toBe(1);
-            expect(clubActualizado.getCanchas()[0].getNombreCancha()).toBe('Cancha Sin Club');
+            expect(clubActualizado.getCanchas()[0]!.getNombreCancha()).toBe('Cancha Sin Club');
         });
 
         it('Debería asociar correctamente la cancha al club en la base de datos', async () => {
             const clubs = await sqliteClub.getClubs();
-            const clubId = clubs[0].getId();
+            const clubId = clubs[0]!.getId();
 
             // Crear cancha
             const db = await openDb();
@@ -420,7 +420,7 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
 
         it('Debería poder agregar múltiples canchas al mismo club', async () => {
             const clubs = await sqliteClub.getClubs();
-            const clubId = clubs[0].getId();
+            const clubId = clubs[0]!.getId();
 
             const db = await openDb();
             const turnoResult = await db.run(
@@ -452,7 +452,7 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
     describe('deleteCanchaAClub', () => {
         it('Debería desasociar una cancha de un club', async () => {
             const clubs = await sqliteClub.getClubs();
-            const clubId = clubs[0].getId();
+            const clubId = clubs[0]!.getId();
 
             // Crear cancha asociada al club
             const db = await openDb();
@@ -472,7 +472,7 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
 
         it('Debería poner clubId en NULL al desasociar la cancha', async () => {
             const clubs = await sqliteClub.getClubs();
-            const clubId = clubs[0].getId();
+            const clubId = clubs[0]!.getId();
 
             const db = await openDb();
             const turnoResult = await db.run(
@@ -492,7 +492,7 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
 
         it('No debería eliminar la cancha, solo desasociarla', async () => {
             const clubs = await sqliteClub.getClubs();
-            const clubId = clubs[0].getId();
+            const clubId = clubs[0]!.getId();
 
             const db = await openDb();
             const turnoResult = await db.run(
@@ -514,7 +514,7 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
 
         it('Debería desasociar solo la cancha especificada', async () => {
             const clubs = await sqliteClub.getClubs();
-            const clubId = clubs[0].getId();
+            const clubId = clubs[0]!.getId();
 
             const db = await openDb();
             const turnoResult = await db.run(
@@ -533,7 +533,7 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
             const clubActualizado = await sqliteClub.deleteCanchaAClub(clubId, cancha1Result.lastID!.toString());
 
             expect(clubActualizado.getCanchas().length).toBe(1);
-            expect(clubActualizado.getCanchas()[0].getNombreCancha()).toBe('Cancha 2');
+            expect(clubActualizado.getCanchas()[0]!.getNombreCancha()).toBe('Cancha 2');
         });
     });
 
@@ -568,7 +568,7 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
             const cantidadInicial = await sqliteClub.size();
             const clubs = await sqliteClub.getClubs();
 
-            await sqliteClub.deleteClub(clubs[0].getId());
+            await sqliteClub.deleteClub(clubs[0]!.getId());
 
             const cantidadFinal = await sqliteClub.size();
 
@@ -632,7 +632,7 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
             const clubFinal = await sqliteClub.getClub(clubCreado.getId());
 
             expect(clubFinal.getCanchas().length).toBe(1);
-            expect(clubFinal.getCanchas()[0].getNombreCancha()).toBe('Cancha Relación');
+            expect(clubFinal.getCanchas()[0]!.getNombreCancha()).toBe('Cancha Relación');
         });
 
         it('Debería mantener la integridad al eliminar y recrear clubs', async () => {
@@ -640,7 +640,7 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
             const cantidadInicial = clubs.length;
 
             // Eliminar un club
-            await sqliteClub.deleteClub(clubs[0].getId());
+            await sqliteClub.deleteClub(clubs[0]!.getId());
 
             // Crear nuevo club
             const nuevoClub = new Club('', 'Dir Nueva', 'Club Nuevo', '6666666666', 'nuevo@test.com', 5);
