@@ -8,12 +8,19 @@ export class SQLiteClub implements ClubCrud {
     
     async getClubs(): Promise<Array<Club>> {
         const db = await openDb();
-        const rows = await db.all('SELECT * FROM clubs');
+        const result = await db.execute('SELECT * FROM clubs');
         const clubs: Club[] = [];
 
-        for (const row of rows) {
-            const club = new Club(row.id.toString(), row.direccion, row.nombreClub, row.telefono, row.gmail, row.valoracion);
-            club.setCanchas(await this.getCanchasDeClub(row.id.toString())); 
+        for (const row of result.rows) {
+            const club = new Club(
+                String(row.id), 
+                String(row.direccion), 
+                String(row.nombreClub), 
+                String(row.telefono), 
+                String(row.gmail), 
+                Number(row.valoracion)
+            );
+            club.setCanchas(await this.getCanchasDeClub(String(row.id))); 
             clubs.push(club);
         }
         return clubs;
@@ -21,72 +28,99 @@ export class SQLiteClub implements ClubCrud {
 
     private async getCanchasDeClub(clubId: string): Promise<Cancha[]> {
         const db = await openDb();
-        const rows = await db.all('SELECT id FROM canchas WHERE clubId = ?', [clubId]);
+        const result = await db.execute({
+            sql: 'SELECT id FROM canchas WHERE clubId = ?',
+            args: [clubId]
+        });
+        
         const canchas: Cancha[] = [];
-        for (const row of rows) {
-            canchas.push(await sqliteCancha.getCancha(row.id.toString()));
+        for (const row of result.rows) {
+            canchas.push(await sqliteCancha.getCancha(String(row.id)));
         }
         return canchas;
     }
 
     async getClub(id: string): Promise<Club> {
         const db = await openDb();
-        const row = await db.get('SELECT * FROM clubs WHERE id = ?', [id]);
+        const result = await db.execute({
+            sql: 'SELECT * FROM clubs WHERE id = ?',
+            args: [id]
+        });
+
+        if (result.rows.length === 0) throw new Error("No existe dicho club");
+        const row = result.rows[0];
+        
         if (!row) throw new Error("No existe dicho club");
 
-        const club = new Club(row.id.toString(), row.direccion, row.nombreClub, row.telefono, row.gmail, row.valoracion);
+        const club = new Club(
+            String(row.id), 
+            String(row.direccion), 
+            String(row.nombreClub), 
+            String(row.telefono), 
+            String(row.gmail), 
+            Number(row.valoracion)
+        );
         club.setCanchas(await this.getCanchasDeClub(id));
         return club;
     }
 
     async addClub(club: Club): Promise<Club> {
         const db = await openDb();
-        const result = await db.run(
-            'INSERT INTO clubs (direccion, nombreClub, telefono, gmail, valoracion) VALUES (?, ?, ?, ?, ?)',
-            [club.getDireccion(), club.getNombreClub(), club.getTelefono(), club.getGmail(), club.getValoracion()]
-        );
-        club.setId(result.lastID?.toString() || "");
+        const result = await db.execute({
+            sql: 'INSERT INTO clubs (direccion, nombreClub, telefono, gmail, valoracion) VALUES (?, ?, ?, ?, ?)',
+            args: [
+                club.getDireccion(), 
+                club.getNombreClub(), 
+                club.getTelefono(), 
+                club.getGmail(), 
+                club.getValoracion()
+            ]
+        });
+        club.setId(result.lastInsertRowid?.toString() || "");
         return club;
     }
 
     async deleteClub(id: string): Promise<void> {
         const db = await openDb();
-        await db.run('DELETE FROM clubs WHERE id = ?', [id]);
+        await db.execute({
+            sql: 'DELETE FROM clubs WHERE id = ?',
+            args: [id]
+        });
     }
 
     async editClub(id: string, direccion: string, nombreClub: string, telefono: string, gmail: string, valoracion: number): Promise<Club> {
         const db = await openDb();
-        await db.run(
-            'UPDATE clubs SET direccion = ?, nombreClub = ?, telefono = ?, gmail = ?, valoracion = ? WHERE id = ?',
-            [direccion, nombreClub, telefono, gmail, valoracion, id]
-        );
+        await db.execute({
+            sql: 'UPDATE clubs SET direccion = ?, nombreClub = ?, telefono = ?, gmail = ?, valoracion = ? WHERE id = ?',
+            args: [direccion, nombreClub, telefono, gmail, valoracion, id]
+        });
         return this.getClub(id);
     }
 
     async addCanchaAClub(idClub: string, nuevaCancha: Cancha): Promise<Club> {
         const db = await openDb();
         
-        await db.run(
-            'UPDATE canchas SET clubId = ? WHERE id = ?',
-            [idClub, nuevaCancha.getId()]
-        );
+        await db.execute({
+            sql: 'UPDATE canchas SET clubId = ? WHERE id = ?',
+            args: [idClub, nuevaCancha.getId()]
+        });
         
         return this.getClub(idClub);
     }
 
     async deleteCanchaAClub(clubId: string, canchaId: string): Promise<Club> {
         const db = await openDb();
-        await db.run(
-            'UPDATE canchas SET clubId = NULL WHERE id = ? AND clubId = ?',
-            [canchaId, clubId]
-        );
+        await db.execute({
+            sql: 'UPDATE canchas SET clubId = NULL WHERE id = ? AND clubId = ?',
+            args: [canchaId, clubId]
+        });
         return this.getClub(clubId);
     }
 
     async size(): Promise<number> {
         const db = await openDb();
-        const result = await db.get('SELECT COUNT(*) as total FROM clubs');
-        return result.total;
+        const result = await db.execute('SELECT COUNT(*) as total FROM clubs');
+        return Number(result.rows[0]?.total) || 0;
     }
 }
 
