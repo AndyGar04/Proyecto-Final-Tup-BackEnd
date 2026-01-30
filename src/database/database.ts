@@ -1,5 +1,3 @@
-import sqlite3 from 'sqlite3';
-import { open, Database } from 'sqlite';
 import { createClient } from "@libsql/client";
 
 const client = createClient({
@@ -23,22 +21,28 @@ export async function initDb() {
             telefono TEXT,
             gmail TEXT,
             valoracion INTEGER
-        );
+        )
+    `);
 
+    await db.execute(`
         CREATE TABLE IF NOT EXISTS turnos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             descripcionTurno TEXT,
             costo REAL
-        );
+        )
+    `);
 
+    await db.execute(`
         CREATE TABLE IF NOT EXISTS usuarios (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
             nombre TEXT NOT NULL,
             rol TEXT DEFAULT 'user'
-        );
+        )
+    `);
 
+    await db.execute(`
         CREATE TABLE IF NOT EXISTS canchas (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nombreCancha TEXT,
@@ -48,8 +52,10 @@ export async function initDb() {
             clubId INTEGER,
             FOREIGN KEY (turnoId) REFERENCES turnos(id),
             FOREIGN KEY (clubId) REFERENCES clubs(id) ON DELETE CASCADE
-        );
+        )
+    `);
 
+    await db.execute(`
         CREATE TABLE IF NOT EXISTS horarios (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             disponibilidad BOOLEAN,
@@ -57,6 +63,6 @@ export async function initDb() {
             diaHorario TEXT,
             turnoId INTEGER,
             FOREIGN KEY (turnoId) REFERENCES turnos(id) ON DELETE CASCADE
-        );
+        )
     `);
 }

@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import Server from "./app";
 import { initializeAdmin } from "./scripts/initAdmin";
 const server = new Server(3000);
