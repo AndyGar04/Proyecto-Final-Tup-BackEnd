@@ -12,23 +12,23 @@ describe('SQLiteUsuario - Integración con Base de Datos', () => {
         
         // Limpiar la tabla de usuarios antes de cada test
         const db = await openDb();
-        await db.run('DELETE FROM usuarios');
+        await db.execute('DELETE FROM usuarios');
         
         // Insertar usuarios de prueba
-        await db.run(
-            'INSERT INTO usuarios (email, password, nombre, rol) VALUES (?, ?, ?, ?)',
-            ['admin@test.com', bcrypt.hashSync('admin123', 4), 'Administrador', 'admin']
-        );
-        await db.run(
-            'INSERT INTO usuarios (email, password, nombre, rol) VALUES (?, ?, ?, ?)',
-            ['user@test.com', bcrypt.hashSync('user123', 4), 'Usuario Prueba', 'user']
-        );
+        await db.execute({
+            sql: 'INSERT INTO usuarios (email, password, nombre, rol) VALUES (?, ?, ?, ?)',
+            args: ['admin@test.com', bcrypt.hashSync('admin123', 4), 'Administrador', 'admin']
+        });
+        await db.execute({
+            sql: 'INSERT INTO usuarios (email, password, nombre, rol) VALUES (?, ?, ?, ?)',
+            args: ['user@test.com', bcrypt.hashSync('user123', 4), 'Usuario Prueba', 'user']
+        });
     });
 
     afterEach(async () => {
         // Limpiar después de cada test
         const db = await openDb();
-        await db.run('DELETE FROM usuarios');
+        await db.execute('DELETE FROM usuarios');
     });
 
     describe('findByEmail', () => {
@@ -105,7 +105,7 @@ describe('SQLiteUsuario - Integración con Base de Datos', () => {
         it('Debería retornar array vacío si no hay usuarios', async () => {
             // Limpiar todos los usuarios
             const db = await openDb();
-            await db.run('DELETE FROM usuarios');
+            await db.execute('DELETE FROM usuarios');
 
             const usuarios = await sqliteUsuario.getAll();
 

@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import ClubController from '../controllers/club.controller';
-import clubService from '../services/club.service';
-import { Club } from '../models/club';
-import { Cancha } from '../models/cancha';
+import ClubController from '../../controllers/club.controller';
+import clubService from '../../services/club.service';
+import { Club } from '../../models/club';
+import { Cancha } from '../../models/cancha';
 
 // Mock de los servicios
-vi.mock('../services/club.service', () => ({
+vi.mock('../../services/club.service', () => ({
     default: {
         getClubs: vi.fn(),
         getClub: vi.fn(),

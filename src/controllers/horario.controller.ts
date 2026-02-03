@@ -98,8 +98,8 @@ class HorarioController {
         }
     }
 
-    public size(req:Request, res:Response){
-        res.status(200).json({size: horarioService.size()})
+    public async size(req:Request, res:Response){
+        res.status(200).json({size: await horarioService.size()})
     }
 }
 

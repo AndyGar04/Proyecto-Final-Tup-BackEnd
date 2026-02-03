@@ -14,27 +14,27 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
         const db = await openDb();
         
         // Limpiar las tablas relacionadas antes de cada test
-        await db.run('DELETE FROM canchas');
-        await db.run('DELETE FROM turnos');
-        await db.run('DELETE FROM clubs');
+        await db.execute('DELETE FROM canchas');
+        await db.execute('DELETE FROM turnos');
+        await db.execute('DELETE FROM clubs');
         
         // Insertar clubs de prueba
-        await db.run(
-            'INSERT INTO clubs (nombreClub, direccion, telefono, gmail, valoracion) VALUES (?, ?, ?, ?, ?)',
-            ['Club Deportivo 1', 'Av. Siempre Viva 123', '1234567890', 'club1@test.com', 5]
-        );
-        await db.run(
-            'INSERT INTO clubs (nombreClub, direccion, telefono, gmail, valoracion) VALUES (?, ?, ?, ?, ?)',
-            ['Club Deportivo 2', 'Calle Falsa 456', '0987654321', 'club2@test.com', 4]
-        );
+        await db.execute({
+            sql: 'INSERT INTO clubs (nombreClub, direccion, telefono, gmail, valoracion) VALUES (?, ?, ?, ?, ?)',
+            args: ['Club Deportivo 1', 'Av. Siempre Viva 123', '1234567890', 'club1@test.com', 5]
+        });
+        await db.execute({
+            sql: 'INSERT INTO clubs (nombreClub, direccion, telefono, gmail, valoracion) VALUES (?, ?, ?, ?, ?)',
+            args: ['Club Deportivo 2', 'Calle Falsa 456', '0987654321', 'club2@test.com', 4]
+        });
     });
 
     afterEach(async () => {
         // Limpiar después de cada test
         const db = await openDb();
-        await db.run('DELETE FROM canchas');
-        await db.run('DELETE FROM turnos');
-        await db.run('DELETE FROM clubs');
+        await db.execute('DELETE FROM canchas');
+        await db.execute('DELETE FROM turnos');
+        await db.execute('DELETE FROM clubs');
     });
 
     describe('getClubs', () => {
@@ -61,7 +61,7 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
 
         it('Debería retornar array vacío si no hay clubs', async () => {
             const db = await openDb();
-            await db.run('DELETE FROM clubs');
+            await db.execute('DELETE FROM clubs');
 
             const clubs = await sqliteClub.getClubs();
 
@@ -75,14 +75,16 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
 
             // Crear turno y cancha para el club
             const db = await openDb();
-            const turnoResult = await db.run(
-                'INSERT INTO turnos (descripcionTurno, costo) VALUES (?, ?)',
-                ['Turno Test', 1000]
-            );
-            await db.run(
-                'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId, clubId) VALUES (?, ?, ?, ?, ?)',
-                ['Cancha Test', 'Fútbol', '5vs5', turnoResult.lastID, clubId]
-            );
+            const turnoResult = await db.execute({
+                sql: 'INSERT INTO turnos (descripcionTurno, costo) VALUES (?, ?)',
+                args: ['Turno Test', 1000]
+            });
+            const turnoId = Number(turnoResult.lastInsertRowid ?? 0);
+
+            await db.execute({
+                sql: 'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId, clubId) VALUES (?, ?, ?, ?, ?)',
+                args: ['Cancha Test', 'Fútbol', '5vs5', turnoId, Number(clubId)]
+            });
 
             const clubActualizado = await sqliteClub.getClub(clubId);
 
@@ -245,29 +247,41 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
             // Crear turno y cancha para el club
             const db = await openDb();
             
-            // Habilitar foreign keys explícitamente
-            await db.run('PRAGMA foreign_keys = ON');
-            
-            const turnoResult = await db.run(
-                'INSERT INTO turnos (descripcionTurno, costo) VALUES (?, ?)',
-                ['Turno Test', 1000]
-            );
-            const canchaResult = await db.run(
-                'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId, clubId) VALUES (?, ?, ?, ?, ?)',
-                ['Cancha Cascade', 'Fútbol', '5vs5', turnoResult.lastID, clubId]
-            );
+            const turnoResult = await db.execute({
+                sql: 'INSERT INTO turnos (descripcionTurno, costo) VALUES (?, ?)',
+                args: ['Turno Test', 1000]
+            });
+            const turnoId = Number(turnoResult.lastInsertRowid ?? 0);
+
+            const canchaResult = await db.execute({
+                sql: 'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId, clubId) VALUES (?, ?, ?, ?, ?)',
+                args: ['Cancha Cascade', 'Fútbol', '5vs5', turnoId, Number(clubId)]
+            });
+            const canchaId = Number(canchaResult.lastInsertRowid ?? 0);
 
             // Verificar que la cancha está asociada al club
-            const canchaAntes = await db.get('SELECT clubId FROM canchas WHERE id = ?', [canchaResult.lastID]);
+            const canchaAntesResult = await db.execute({
+                sql: 'SELECT clubId FROM canchas WHERE id = ?',
+                args: [canchaId]
+            });
+            const canchaAntes = canchaAntesResult.rows[0] as any;
             expect(canchaAntes.clubId.toString()).toBe(clubId);
 
             // Eliminar el club
             await sqliteClub.deleteClub(clubId);
 
             // Verificar que la cancha también fue eliminada o desasociada
-            const cancha = await db.get('SELECT * FROM canchas WHERE id = ?', [canchaResult.lastID]);
+            const canchaResultCheck = await db.execute({
+                sql: 'SELECT * FROM canchas WHERE id = ?',
+                args: [canchaId]
+            });
+            const cancha = canchaResultCheck.rows[0];
             // Si CASCADE funciona, la cancha será undefined; si no, al menos verificamos que se eliminó el club
-            const clubEliminado = await db.get('SELECT * FROM clubs WHERE id = ?', [clubId]);
+            const clubEliminadoResult = await db.execute({
+                sql: 'SELECT * FROM clubs WHERE id = ?',
+                args: [clubId]
+            });
+            const clubEliminado = clubEliminadoResult.rows[0];
             expect(clubEliminado).toBeUndefined();
         });
     });
@@ -375,17 +389,20 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
 
             // Crear turno y cancha sin club
             const db = await openDb();
-            const turnoResult = await db.run(
-                'INSERT INTO turnos (descripcionTurno, costo) VALUES (?, ?)',
-                ['Turno Test', 1500]
-            );
-            const canchaResult = await db.run(
-                'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId) VALUES (?, ?, ?, ?)',
-                ['Cancha Sin Club', 'Fútbol', '7vs7', turnoResult.lastID]
-            );
+            const turnoResult = await db.execute({
+                sql: 'INSERT INTO turnos (descripcionTurno, costo) VALUES (?, ?)',
+                args: ['Turno Test', 1500]
+            });
+            const turnoId = Number(turnoResult.lastInsertRowid ?? 0);
 
-            const turno = new Turno(turnoResult.lastID!.toString(), 'Turno Test', 1500);
-            const cancha = new Cancha(canchaResult.lastID!.toString(), 'Cancha Sin Club', 'Fútbol', '7vs7', turno);
+            const canchaResult = await db.execute({
+                sql: 'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId) VALUES (?, ?, ?, ?)',
+                args: ['Cancha Sin Club', 'Fútbol', '7vs7', turnoId]
+            });
+            const canchaId = Number(canchaResult.lastInsertRowid ?? 0);
+
+            const turno = new Turno(turnoId.toString(), 'Turno Test', 1500);
+            const cancha = new Cancha(canchaId.toString(), 'Cancha Sin Club', 'Fútbol', '7vs7', turno);
 
             const clubActualizado = await sqliteClub.addCanchaAClub(clubId, cancha);
 
@@ -399,22 +416,29 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
 
             // Crear cancha
             const db = await openDb();
-            const turnoResult = await db.run(
-                'INSERT INTO turnos (descripcionTurno, costo) VALUES (?, ?)',
-                ['Turno Test', 2000]
-            );
-            const canchaResult = await db.run(
-                'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId) VALUES (?, ?, ?, ?)',
-                ['Cancha Asociar', 'Basket', '5vs5', turnoResult.lastID]
-            );
+            const turnoResult = await db.execute({
+                sql: 'INSERT INTO turnos (descripcionTurno, costo) VALUES (?, ?)',
+                args: ['Turno Test', 2000]
+            });
+            const turnoId = Number(turnoResult.lastInsertRowid ?? 0);
 
-            const turno = new Turno(turnoResult.lastID!.toString(), 'Turno Test', 2000);
-            const cancha = new Cancha(canchaResult.lastID!.toString(), 'Cancha Asociar', 'Basket', '5vs5', turno);
+            const canchaResult = await db.execute({
+                sql: 'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId) VALUES (?, ?, ?, ?)',
+                args: ['Cancha Asociar', 'Basket', '5vs5', turnoId]
+            });
+            const canchaId = Number(canchaResult.lastInsertRowid ?? 0);
+
+            const turno = new Turno(turnoId.toString(), 'Turno Test', 2000);
+            const cancha = new Cancha(canchaId.toString(), 'Cancha Asociar', 'Basket', '5vs5', turno);
 
             await sqliteClub.addCanchaAClub(clubId, cancha);
 
             // Verificar en la base de datos
-            const row = await db.get('SELECT clubId FROM canchas WHERE id = ?', [cancha.getId()]);
+            const rowResult = await db.execute({
+                sql: 'SELECT clubId FROM canchas WHERE id = ?',
+                args: [cancha.getId()]
+            });
+            const row = rowResult.rows[0] as any;
             expect(row.clubId.toString()).toBe(clubId);
         });
 
@@ -423,24 +447,28 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
             const clubId = clubs[0]!.getId();
 
             const db = await openDb();
-            const turnoResult = await db.run(
-                'INSERT INTO turnos (descripcionTurno, costo) VALUES (?, ?)',
-                ['Turno Test', 1000]
-            );
+            const turnoResult = await db.execute({
+                sql: 'INSERT INTO turnos (descripcionTurno, costo) VALUES (?, ?)',
+                args: ['Turno Test', 1000]
+            });
+            const turnoId = Number(turnoResult.lastInsertRowid ?? 0);
 
             // Crear dos canchas
-            const cancha1Result = await db.run(
-                'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId) VALUES (?, ?, ?, ?)',
-                ['Cancha 1', 'Fútbol', '5vs5', turnoResult.lastID]
-            );
-            const cancha2Result = await db.run(
-                'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId) VALUES (?, ?, ?, ?)',
-                ['Cancha 2', 'Fútbol', '7vs7', turnoResult.lastID]
-            );
+            const cancha1Result = await db.execute({
+                sql: 'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId) VALUES (?, ?, ?, ?)',
+                args: ['Cancha 1', 'Fútbol', '5vs5', turnoId]
+            });
+            const cancha1Id = Number(cancha1Result.lastInsertRowid ?? 0);
 
-            const turno = new Turno(turnoResult.lastID!.toString(), 'Turno Test', 1000);
-            const cancha1 = new Cancha(cancha1Result.lastID!.toString(), 'Cancha 1', 'Fútbol', '5vs5', turno);
-            const cancha2 = new Cancha(cancha2Result.lastID!.toString(), 'Cancha 2', 'Fútbol', '7vs7', turno);
+            const cancha2Result = await db.execute({
+                sql: 'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId) VALUES (?, ?, ?, ?)',
+                args: ['Cancha 2', 'Fútbol', '7vs7', turnoId]
+            });
+            const cancha2Id = Number(cancha2Result.lastInsertRowid ?? 0);
+
+            const turno = new Turno(turnoId.toString(), 'Turno Test', 1000);
+            const cancha1 = new Cancha(cancha1Id.toString(), 'Cancha 1', 'Fútbol', '5vs5', turno);
+            const cancha2 = new Cancha(cancha2Id.toString(), 'Cancha 2', 'Fútbol', '7vs7', turno);
 
             await sqliteClub.addCanchaAClub(clubId, cancha1);
             const clubActualizado = await sqliteClub.addCanchaAClub(clubId, cancha2);
@@ -456,16 +484,19 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
 
             // Crear cancha asociada al club
             const db = await openDb();
-            const turnoResult = await db.run(
-                'INSERT INTO turnos (descripcionTurno, costo) VALUES (?, ?)',
-                ['Turno Test', 1500]
-            );
-            const canchaResult = await db.run(
-                'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId, clubId) VALUES (?, ?, ?, ?, ?)',
-                ['Cancha Desasociar', 'Fútbol', '7vs7', turnoResult.lastID, clubId]
-            );
+            const turnoResult = await db.execute({
+                sql: 'INSERT INTO turnos (descripcionTurno, costo) VALUES (?, ?)',
+                args: ['Turno Test', 1500]
+            });
+            const turnoId = Number(turnoResult.lastInsertRowid ?? 0);
 
-            const clubActualizado = await sqliteClub.deleteCanchaAClub(clubId, canchaResult.lastID!.toString());
+            const canchaResult = await db.execute({
+                sql: 'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId, clubId) VALUES (?, ?, ?, ?, ?)',
+                args: ['Cancha Desasociar', 'Fútbol', '7vs7', turnoId, Number(clubId)]
+            });
+            const canchaId = Number(canchaResult.lastInsertRowid ?? 0);
+
+            const clubActualizado = await sqliteClub.deleteCanchaAClub(clubId, canchaId.toString());
 
             expect(clubActualizado.getCanchas().length).toBe(0);
         });
@@ -475,18 +506,25 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
             const clubId = clubs[0]!.getId();
 
             const db = await openDb();
-            const turnoResult = await db.run(
-                'INSERT INTO turnos (descripcionTurno, costo) VALUES (?, ?)',
-                ['Turno Test', 2000]
-            );
-            const canchaResult = await db.run(
-                'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId, clubId) VALUES (?, ?, ?, ?, ?)',
-                ['Cancha NULL Test', 'Basket', '5vs5', turnoResult.lastID, clubId]
-            );
+            const turnoResult = await db.execute({
+                sql: 'INSERT INTO turnos (descripcionTurno, costo) VALUES (?, ?)',
+                args: ['Turno Test', 2000]
+            });
+            const turnoId = Number(turnoResult.lastInsertRowid ?? 0);
 
-            await sqliteClub.deleteCanchaAClub(clubId, canchaResult.lastID!.toString());
+            const canchaResult = await db.execute({
+                sql: 'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId, clubId) VALUES (?, ?, ?, ?, ?)',
+                args: ['Cancha NULL Test', 'Basket', '5vs5', turnoId, Number(clubId)]
+            });
+            const canchaId = Number(canchaResult.lastInsertRowid ?? 0);
 
-            const row = await db.get('SELECT clubId FROM canchas WHERE id = ?', [canchaResult.lastID]);
+            await sqliteClub.deleteCanchaAClub(clubId, canchaId.toString());
+
+            const rowResult = await db.execute({
+                sql: 'SELECT clubId FROM canchas WHERE id = ?',
+                args: [canchaId]
+            });
+            const row = rowResult.rows[0] as any;
             expect(row.clubId).toBeNull();
         });
 
@@ -495,21 +533,28 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
             const clubId = clubs[0]!.getId();
 
             const db = await openDb();
-            const turnoResult = await db.run(
-                'INSERT INTO turnos (descripcionTurno, costo) VALUES (?, ?)',
-                ['Turno Test', 1200]
-            );
-            const canchaResult = await db.run(
-                'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId, clubId) VALUES (?, ?, ?, ?, ?)',
-                ['Cancha Existe', 'Volley', '6vs6', turnoResult.lastID, clubId]
-            );
+            const turnoResult = await db.execute({
+                sql: 'INSERT INTO turnos (descripcionTurno, costo) VALUES (?, ?)',
+                args: ['Turno Test', 1200]
+            });
+            const turnoId = Number(turnoResult.lastInsertRowid ?? 0);
 
-            await sqliteClub.deleteCanchaAClub(clubId, canchaResult.lastID!.toString());
+            const canchaResult = await db.execute({
+                sql: 'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId, clubId) VALUES (?, ?, ?, ?, ?)',
+                args: ['Cancha Existe', 'Volley', '6vs6', turnoId, Number(clubId)]
+            });
+            const canchaId = Number(canchaResult.lastInsertRowid ?? 0);
+
+            await sqliteClub.deleteCanchaAClub(clubId, canchaId.toString());
 
             // Verificar que la cancha sigue existiendo
-            const cancha = await db.get('SELECT * FROM canchas WHERE id = ?', [canchaResult.lastID]);
+            const canchaResultCheck = await db.execute({
+                sql: 'SELECT * FROM canchas WHERE id = ?',
+                args: [canchaId]
+            });
+            const cancha = canchaResultCheck.rows[0];
             expect(cancha).toBeDefined();
-            expect(cancha.nombreCancha).toBe('Cancha Existe');
+            expect((cancha as any).nombreCancha).toBe('Cancha Existe');
         });
 
         it('Debería desasociar solo la cancha especificada', async () => {
@@ -517,20 +562,25 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
             const clubId = clubs[0]!.getId();
 
             const db = await openDb();
-            const turnoResult = await db.run(
-                'INSERT INTO turnos (descripcionTurno, costo) VALUES (?, ?)',
-                ['Turno Test', 1000]
-            );
-            const cancha1Result = await db.run(
-                'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId, clubId) VALUES (?, ?, ?, ?, ?)',
-                ['Cancha 1', 'Fútbol', '5vs5', turnoResult.lastID, clubId]
-            );
-            const cancha2Result = await db.run(
-                'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId, clubId) VALUES (?, ?, ?, ?, ?)',
-                ['Cancha 2', 'Fútbol', '7vs7', turnoResult.lastID, clubId]
-            );
+            const turnoResult = await db.execute({
+                sql: 'INSERT INTO turnos (descripcionTurno, costo) VALUES (?, ?)',
+                args: ['Turno Test', 1000]
+            });
+            const turnoId = Number(turnoResult.lastInsertRowid ?? 0);
 
-            const clubActualizado = await sqliteClub.deleteCanchaAClub(clubId, cancha1Result.lastID!.toString());
+            const cancha1Result = await db.execute({
+                sql: 'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId, clubId) VALUES (?, ?, ?, ?, ?)',
+                args: ['Cancha 1', 'Fútbol', '5vs5', turnoId, Number(clubId)]
+            });
+            const cancha1Id = Number(cancha1Result.lastInsertRowid ?? 0);
+
+            const cancha2Result = await db.execute({
+                sql: 'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId, clubId) VALUES (?, ?, ?, ?, ?)',
+                args: ['Cancha 2', 'Fútbol', '7vs7', turnoId, Number(clubId)]
+            });
+            const cancha2Id = Number(cancha2Result.lastInsertRowid ?? 0);
+
+            const clubActualizado = await sqliteClub.deleteCanchaAClub(clubId, cancha1Id.toString());
 
             expect(clubActualizado.getCanchas().length).toBe(1);
             expect(clubActualizado.getCanchas()[0]!.getNombreCancha()).toBe('Cancha 2');
@@ -546,7 +596,7 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
 
         it('Debería retornar 0 cuando no hay clubs', async () => {
             const db = await openDb();
-            await db.run('DELETE FROM clubs');
+            await db.execute('DELETE FROM clubs');
 
             const cantidad = await sqliteClub.size();
 
@@ -609,14 +659,16 @@ describe('SQLiteClub - Integración con Base de Datos', () => {
 
             // Agregar cancha
             const db = await openDb();
-            const turnoResult = await db.run(
-                'INSERT INTO turnos (descripcionTurno, costo) VALUES (?, ?)',
-                ['Turno Test', 1500]
-            );
-            const canchaResult = await db.run(
-                'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId, clubId) VALUES (?, ?, ?, ?, ?)',
-                ['Cancha Relación', 'Fútbol', '5vs5', turnoResult.lastID, clubCreado.getId()]
-            );
+            const turnoResult = await db.execute({
+                sql: 'INSERT INTO turnos (descripcionTurno, costo) VALUES (?, ?)',
+                args: ['Turno Test', 1500]
+            });
+            const turnoId = Number(turnoResult.lastInsertRowid ?? 0);
+
+            const canchaResult = await db.execute({
+                sql: 'INSERT INTO canchas (nombreCancha, deporte, tamanio, turnoId, clubId) VALUES (?, ?, ?, ?, ?)',
+                args: ['Cancha Relación', 'Fútbol', '5vs5', turnoId, Number(clubCreado.getId())]
+            });
 
             // Editar el club
             await sqliteClub.editClub(
